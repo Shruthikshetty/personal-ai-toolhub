@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.models import ModelInfo, ModelCreate, ModelListResponse
 
 
-router = APIRouter(prefix="/api/models", tags=["Models"])
+router = APIRouter(prefix="/v1/models", tags=["Models"])
 
 # Path to the models data file
 DATA_FILE = Path(__file__).parent.parent / "data" / "models.json"

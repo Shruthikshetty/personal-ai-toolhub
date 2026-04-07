@@ -1,4 +1,4 @@
-"""Pydantic schemas for the /api/tts endpoint."""
+"""Pydantic schemas for the /v1/audio/speech endpoint (OpenAI-compatible)."""
 
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -12,12 +12,17 @@ class AudioFormat(str, Enum):
 
 
 class TTSRequest(BaseModel):
-    """Request schema for text-to-speech synthesis."""
-    text: str = Field(
+    """Request schema for text-to-speech synthesis (OpenAI-compatible)."""
+    model: str = Field(
+        ...,
+        description="The TTS model to use (e.g. 'kokoro')",
+        examples=["kokoro"],
+    )
+    input: str = Field(
         ...,
         description="The text to synthesize into speech",
         min_length=1,
-        max_length=5000,
+        max_length=4096,
         examples=["Hello, welcome to our text-to-speech service."],
     )
     voice: str = Field(
@@ -27,11 +32,11 @@ class TTSRequest(BaseModel):
     )
     speed: float = Field(
         default=1.0,
-        description="Speech speed multiplier (0.5 = half speed, 2.0 = double speed)",
+        description="Speech speed multiplier (0.25–4.0)",
         ge=0.25,
         le=4.0,
     )
-    format: AudioFormat = Field(
+    response_format: AudioFormat = Field(
         default=AudioFormat.WAV,
         description="Output audio format",
     )

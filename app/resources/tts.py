@@ -1,8 +1,11 @@
 """TTS resource — Kokoro text-to-speech endpoint.
 
-Provides an OpenAPI-documented endpoint for text-to-speech synthesis
-using the Kokoro TTS model. Currently returns placeholder audio until
-the Kokoro model is integrated.
+Provides an OpenAI-compatible endpoint for text-to-speech synthesis
+using the Kokoro TTS model.
+
+Routes:
+  POST /v1/audio/speech  — synthesize speech from text
+  GET  /v1/audio/voices  — list available voices
 """
 
 import io
@@ -14,7 +17,7 @@ from kokoro import KPipeline
 from app.schemas.tts import TTSRequest
 
 
-router = APIRouter(prefix="/api/tts", tags=["Text-to-Speech"])
+router = APIRouter(prefix="/v1/audio", tags=["Audio"])
 
 # Supported voices (must match models.json config)
 SUPPORTED_VOICES = [
@@ -45,12 +48,13 @@ def get_pipeline():
 
 
 @router.post(
-    "",
-    summary="Synthesize speech from text",
+    "/speech",
+    summary="Create speech",
     description=(
         "Converts input text to speech audio using the Kokoro TTS model. "
         "Supports multiple voices and adjustable speed. "
-        "Returns audio in the requested format (WAV or MP3)."
+        "Returns audio in the requested format (WAV or MP3). "
+        "OpenAI-compatible: `POST /v1/audio/speech`."
     ),
     responses={
         200: {
@@ -68,12 +72,13 @@ def get_pipeline():
 )
 async def synthesize_speech(request: TTSRequest):
     """
-    Generate speech audio from the provided text.
+    Generate speech audio from the provided text (OpenAI-compatible).
 
-    - **text**: The text to convert to speech (1-5000 characters)
-    - **voice**: Voice ID to use (default: af_heart)
-    - **speed**: Speed multiplier, 0.25 to 4.0 (default: 1.0)
-    - **format**: Output audio format — currently only WAV is supported in this implementation
+    - **model**: TTS model to use (e.g. `kokoro`)
+    - **input**: The text to convert to speech (1–4096 characters)
+    - **voice**: Voice ID to use (default: `af_heart`)
+    - **speed**: Speed multiplier, 0.25–4.0 (default: 1.0)
+    - **response_format**: Output audio format — currently only WAV is supported
     """
 
     # Validate voice
@@ -86,13 +91,13 @@ async def synthesize_speech(request: TTSRequest):
             },
         )
 
-    # Get the pipeline
+    # Get the pipeline (lazy-loaded singleton)
     pipeline = get_pipeline()
 
     try:
-        # Generate speech segments
-        generator = pipeline(request.text, voice=request.voice, speed=request.speed)
-        
+        # Generate speech segments (using OpenAI-spec field: `input`)
+        generator = pipeline(request.input, voice=request.voice, speed=request.speed)
+
         audio_segments = []
         for _, _, audio in generator:
             audio_segments.append(audio)
@@ -113,8 +118,8 @@ async def synthesize_speech(request: TTSRequest):
             content=buffer.getvalue(),
             media_type="audio/wav",
             headers={
-                "Content-Disposition": f'attachment; filename="speech.wav"',
-                "X-Generated-Text-Length": str(len(request.text)),
+                "Content-Disposition": 'attachment; filename="speech.wav"',
+                "X-Generated-Text-Length": str(len(request.input)),
                 "X-Generated-Voice": request.voice,
             }
         )
@@ -126,7 +131,7 @@ async def synthesize_speech(request: TTSRequest):
 @router.get(
     "/voices",
     summary="List available voices",
-    description="Returns a list of all supported voice IDs for the Kokoro TTS model.",
+    description="Returns a list of all supported voice IDs for the Kokoro TTS model. Route: GET /v1/audio/voices.",
 )
 def list_voices():
     """Get all available TTS voices."""
