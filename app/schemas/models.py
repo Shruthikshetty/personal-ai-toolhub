@@ -40,5 +40,5 @@ class ModelCreate(BaseModel):
 
 class ModelListResponse(BaseModel):
     """Response schema for listing models."""
-    models: list[ModelInfo] = Field(..., description="List of available models")
+    data: list[ModelInfo] = Field(..., description="List of available models")
     count: int = Field(..., description="Total number of models")

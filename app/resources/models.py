@@ -39,7 +39,7 @@ def _write_models(models: list[dict]) -> None:
 def list_models():
     models = _read_models()
     return ModelListResponse(
-        models=[ModelInfo(**m) for m in models],
+        data=[ModelInfo(**m) for m in models],
         count=len(models),
     )
 
