@@ -9,6 +9,7 @@ Routes:
 """
 
 import io
+import torch
 import numpy as np
 import soundfile as sf
 from fastapi import APIRouter, HTTPException, Response
@@ -36,8 +37,10 @@ def get_pipeline():
     global _PIPELINE
     if _PIPELINE is None:
         try:
+            # Determine device: use CUDA if available, otherwise CPU
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
             # Initialize the pipeline for American English ('a')
-            _PIPELINE = KPipeline(lang_code='a')
+            _PIPELINE = KPipeline(lang_code='a', device=device)
         except Exception as e:
             # This might happen if espeak-ng is not installed or path is wrong
             raise HTTPException(
