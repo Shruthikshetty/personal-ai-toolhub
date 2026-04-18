@@ -26,12 +26,12 @@
     }
   },
   {
-    "id": "z-turbo-lora",
+    "id": "z-turbo-lora-image",
     "name": "Z Image Turbo LoRA",
     "type": "image_gen",
     "version": "1.0",
     "status": "available",
-    "description": "Z Turbo LoRA ComfyUI Workflow",
+    "description": "Custom wrapper for ComfyUI workflows",
     "parameters": {
       "default_n": 1,
       "default_size": "1024x1024",
