@@ -11,6 +11,7 @@ import os
 import time
 import json
 import asyncio
+import base64
 import httpx
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
@@ -133,7 +134,22 @@ async def create_image(request: ImageGenerationRequest):
                                     
                                     # Construct URL to view the image
                                     img_url = f"{COMFYUI_SERVER_URL}/view?filename={filename}&subfolder={subfolder}&type={type_}"
-                                    images_data.append(ImageGenerationData(url=img_url))
+                                    
+                                    b64_encoded = None
+                                    if getattr(request, "response_format", "url") == "b64_json":
+                                        # Fetch the image and encode it
+                                        try:
+                                            img_res = await client.get(img_url, timeout=10.0)
+                                            if img_res.status_code == 200:
+                                                b64_encoded = base64.b64encode(img_res.content).decode("utf-8")
+                                        except Exception as e:
+                                            print(f"Failed to fetch image for b64 encoding: {e}")
+
+                                    # OpenAI spec: if b64_json is requested, url should typically be omitted/optional, but pydantic schema handles both.
+                                    images_data.append(ImageGenerationData(
+                                        url=img_url if request.response_format == "url" else None,
+                                        b64_json=b64_encoded
+                                    ))
                                     
                         if not images_data:
                             raise HTTPException(status_code=500, detail="ComfyUI completed but no images were found in output.")
