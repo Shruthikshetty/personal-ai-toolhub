@@ -12,6 +12,7 @@ import time
 
 from app.resources.models import router as models_router
 from app.resources.tts import router as tts_router
+from app.resources.images import router as images_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     # Register routers
     app.include_router(models_router)
     app.include_router(tts_router)
+    app.include_router(images_router)
 
     @app.get("/", tags=["Health"])
     def health_check():

@@ -24,5 +24,18 @@
       "sample_rate": 24000,
       "max_text_length": 5000
     }
+  },
+  {
+    "id": "z-turbo-lora",
+    "name": "Z Image Turbo LoRA",
+    "type": "image_gen",
+    "version": "1.0",
+    "status": "available",
+    "description": "Z Turbo LoRA ComfyUI Workflow",
+    "parameters": {
+      "default_n": 1,
+      "default_size": "1024x1024",
+      "workflow_file": "Z-Image-Turbo-LoRA.json"
+    }
   }
 ]
