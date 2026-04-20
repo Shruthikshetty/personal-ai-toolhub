@@ -8,7 +8,8 @@ python-multipart==0.0.22
 httpx==0.28.1
 
 
-# AI / TTS
+# AI / TTS / Tools
 kokoro[all]
 soundfile
 numpy
+beautifulsoup4
