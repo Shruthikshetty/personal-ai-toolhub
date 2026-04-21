@@ -1,326 +1,496 @@
 {
-  "1": {
-    "inputs": {
-      "clip_name": "qwen_3_4b.safetensors",
-      "type": "lumina2",
-      "device": "default"
-    },
-    "class_type": "CLIPLoader",
-    "_meta": {
-      "title": "Load CLIP"
-    }
-  },
-  "2": {
-    "inputs": {
-      "vae_name": "ae.safetensors"
-    },
-    "class_type": "VAELoader",
-    "_meta": {
-      "title": "Load VAE"
-    }
-  },
-  "3": {
-    "inputs": {
-      "width": 1024,
-      "height": 1024,
-      "batch_size": 1
-    },
-    "class_type": "EmptySD3LatentImage",
-    "_meta": {
-      "title": "EmptySD3LatentImage"
-    }
-  },
-  "4": {
-    "inputs": {
-      "conditioning": [
-        "7",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
-    }
-  },
-  "5": {
-    "inputs": {
-      "samples": [
-        "6",
-        0
+  "id": "eb27959c-1eb9-4bb8-b47b-428a61e42b74",
+  "revision": 0,
+  "last_node_id": 27,
+  "last_link_id": 29,
+  "nodes": [
+    {
+      "id": 5,
+      "type": "VAEDecode",
+      "pos": [1857.692227817717, 123.6697995425329],
+      "size": [210, 46],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 2
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 3
+        }
       ],
-      "vae": [
-        "2",
-        0
-      ]
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [10]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.64",
+        "Node name for S&R": "VAEDecode",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": []
     },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
-  "6": {
-    "inputs": {
-      "seed": 657157530955468,
-      "steps": 8,
-      "cfg": 1,
-      "sampler_name": "res_multistep",
-      "scheduler": "simple",
-      "denoise": 1,
-      "model": [
-        "9",
-        0
+    {
+      "id": 9,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [1350.5537187669177, 114.63893500408525],
+      "size": [210, 58],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 17
+        }
       ],
-      "positive": [
-        "7",
-        0
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [4]
+        }
       ],
-      "negative": [
-        "4",
-        0
-      ],
-      "latent_image": [
-        "3",
-        0
-      ]
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.64",
+        "Node name for S&R": "ModelSamplingAuraFlow",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [3]
     },
-    "class_type": "KSampler",
-    "_meta": {
-      "title": "KSampler"
-    }
-  },
-  "7": {
-    "inputs": {
-      "text": "An adult anime demon summoner with fiery amber eyes and black twin tails",
-      "clip": [
-        "15",
+    {
+      "id": 8,
+      "type": "UNETLoader",
+      "pos": [408.3729289278059, 303.7953481605049],
+      "size": [270, 82],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [16]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.73",
+        "Node name for S&R": "UNETLoader",
+        "models": [
+          {
+            "name": "z_image_turbo_bf16.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": ["z_image_turbo_fp8_e4m3fn.safetensors", "default"]
+    },
+    {
+      "id": 10,
+      "type": "SaveImage",
+      "pos": [1997.656323676841, 241.37273400250285],
+      "size": [540.3558087308129, 624.0574745301391],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.76",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": ["zturbo"]
+    },
+    {
+      "id": 4,
+      "type": "ConditioningZeroOut",
+      "pos": [1316.0814963366615, 731.0881558222216],
+      "size": [204.134765625, 26],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [6]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.73",
+        "Node name for S&R": "ConditioningZeroOut",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 1,
+      "type": "CLIPLoader",
+      "pos": [402.75333592435425, 461.8923871256336],
+      "size": [270, 106],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [14]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.73",
+        "Node name for S&R": "CLIPLoader",
+        "models": [
+          {
+            "name": "qwen_3_4b.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": ["qwen_3_4b.safetensors", "lumina2", "default"]
+    },
+    {
+      "id": 2,
+      "type": "VAELoader",
+      "pos": [394.886111508884, 631.5423422236083],
+      "size": [270, 58],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [3]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.73",
+        "Node name for S&R": "VAELoader",
+        "models": [
+          {
+            "name": "ae.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": ["ae.safetensors"]
+    },
+    {
+      "id": 3,
+      "type": "EmptySD3LatentImage",
+      "pos": [403.23627645425574, 738.9234972246891],
+      "size": [260, 110],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [7]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.64",
+        "Node name for S&R": "EmptySD3LatentImage",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [1024, 1024, 1]
+    },
+    {
+      "id": 15,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [793.0173240351086, 325.5165397684175],
+      "size": [271.878515625, 246],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 16
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [17]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [15]
+        }
+      ],
+      "properties": {
+        "cnr_id": "rgthree-comfy",
+        "ver": "1.0.2511270846",
+        "Node name for S&R": "Lora Loader Stack (rgthree)"
+      },
+      "widgets_values": ["None", 0.8, "None", 1, "None", 1, "None", 1]
+    },
+    {
+      "id": 6,
+      "type": "KSampler",
+      "pos": [1617.8995279343173, 309.13835100819506],
+      "size": [315, 474],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 4
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 5
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [2]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.64",
+        "Node name for S&R": "KSampler",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        1001352838358392,
+        "randomize",
+        8,
+        1,
+        "res_multistep",
+        "simple",
         1
       ]
     },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "8": {
-    "inputs": {
-      "unet_name": "z_image_turbo_fp8_e4m3fn.safetensors",
-      "weight_dtype": "default"
-    },
-    "class_type": "UNETLoader",
-    "_meta": {
-      "title": "Load Diffusion Model"
-    }
-  },
-  "9": {
-    "inputs": {
-      "shift": 3,
-      "model": [
-        "15",
-        0
-      ]
-    },
-    "class_type": "ModelSamplingAuraFlow",
-    "_meta": {
-      "title": "ModelSamplingAuraFlow"
-    }
-  },
-  "10": {
-    "inputs": {
-      "filename_prefix": "zturbo",
-      "images": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
-  "15": {
-    "inputs": {
-      "lora_01": "None",
-      "strength_01": 0.8,
-      "lora_02": "None",
-      "strength_02": 1,
-      "lora_03": "None",
-      "strength_03": 1,
-      "lora_04": "None",
-      "strength_04": 1,
-      "model": [
-        "8",
-        0
+    {
+      "id": 7,
+      "type": "CLIPTextEncode",
+      "pos": [1129.963630983486, 319.1606528829056],
+      "size": [410, 370],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 15
+        }
       ],
-      "clip": [
-        "1",
-        0
-      ]
-    },
-    "class_type": "Lora Loader Stack (rgthree)",
-    "_meta": {
-      "title": "Lora Loader Stack (rgthree)"
-    }
-  },
-  "17": {
-    "inputs": {
-      "clip_name": "qwen_3_4b.safetensors",
-      "type": "lumina2",
-      "device": "default"
-    },
-    "class_type": "CLIPLoader",
-    "_meta": {
-      "title": "Load CLIP"
-    }
-  },
-  "18": {
-    "inputs": {
-      "seed": 657157530955468,
-      "steps": 8,
-      "cfg": 1,
-      "sampler_name": "res_multistep",
-      "scheduler": "simple",
-      "denoise": 1,
-      "model": [
-        "20",
-        0
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [1, 5]
+        }
       ],
-      "positive": [
-        "27",
-        0
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.73",
+        "Node name for S&R": "CLIPTextEncode",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "Digital anime-style illustration of a blonde fair-skinned woman with large breasts and a slim toned physique. She wears a gold scale-patterned bikini and arm bracers with two golden dragon heads emerging from her back wings spread. Her expression is confident and fierce. The background is dark with glowing molten lava enhancing the dramatic mythical atmosphere. The artist's style emphasizes sharp lines and vibrant colors"
+      ]
+    }
+  ],
+  "links": [
+    [1, 7, 0, 4, 0, "CONDITIONING"],
+    [2, 6, 0, 5, 0, "LATENT"],
+    [3, 2, 0, 5, 1, "VAE"],
+    [4, 9, 0, 6, 0, "MODEL"],
+    [5, 7, 0, 6, 1, "CONDITIONING"],
+    [6, 4, 0, 6, 2, "CONDITIONING"],
+    [7, 3, 0, 6, 3, "LATENT"],
+    [10, 5, 0, 10, 0, "IMAGE"],
+    [14, 1, 0, 15, 1, "CLIP"],
+    [15, 15, 1, 7, 0, "CLIP"],
+    [16, 8, 0, 15, 0, "MODEL"],
+    [17, 15, 0, 9, 0, "MODEL"]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Prompt",
+      "bounding": [1104.8550036118772, 218.50923943057035, 450, 540],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Load Models",
+      "bounding": [
+        368.50467420658276, 211.7237891268426, 350.53166889503314,
+        657.7675917236675
       ],
-      "negative": [
-        "25",
-        0
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "Load LoRA + Set Strength",
+      "bounding": [
+        752.9163203988645, 216.86220678620774, 328.591387017024,
+        370.58204572962404
       ],
-      "latent_image": [
-        "22",
-        0
-      ]
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
     },
-    "class_type": "KSampler",
-    "_meta": {
-      "title": "KSampler"
-    }
-  },
-  "19": {
-    "inputs": {
-      "samples": [
-        "18",
-        0
+    {
+      "id": 4,
+      "title": "Ksampler Settings",
+      "bounding": [
+        1592.6092188369237, 218.978232364562, 373.2098143494095,
+        591.1065392328362
       ],
-      "vae": [
-        "21",
-        0
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
     }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.0508560926405681,
+      "offset": [-518.9082124397494, 17.90718081106519]
+    },
+    "frontendVersion": "1.39.19",
+    "workflowRendererVersion": "LG",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
   },
-  "20": {
-    "inputs": {
-      "shift": 3,
-      "model": [
-        "26",
-        0
-      ]
-    },
-    "class_type": "ModelSamplingAuraFlow",
-    "_meta": {
-      "title": "ModelSamplingAuraFlow"
-    }
-  },
-  "21": {
-    "inputs": {
-      "vae_name": "ae.safetensors"
-    },
-    "class_type": "VAELoader",
-    "_meta": {
-      "title": "Load VAE"
-    }
-  },
-  "22": {
-    "inputs": {
-      "width": 1024,
-      "height": 1024,
-      "batch_size": 1
-    },
-    "class_type": "EmptySD3LatentImage",
-    "_meta": {
-      "title": "EmptySD3LatentImage"
-    }
-  },
-  "23": {
-    "inputs": {
-      "filename_prefix": "zturbo",
-      "images": [
-        "19",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
-  "24": {
-    "inputs": {
-      "unet_name": "z_image_turbo_fp8_e4m3fn.safetensors",
-      "weight_dtype": "default"
-    },
-    "class_type": "UNETLoader",
-    "_meta": {
-      "title": "Load Diffusion Model"
-    }
-  },
-  "25": {
-    "inputs": {
-      "conditioning": [
-        "27",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
-    }
-  },
-  "26": {
-    "inputs": {
-      "lora_01": "None",
-      "strength_01": 0.8,
-      "lora_02": "None",
-      "strength_02": 1,
-      "lora_03": "None",
-      "strength_03": 1,
-      "lora_04": "None",
-      "strength_04": 1,
-      "model": [
-        "24",
-        0
-      ],
-      "clip": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "Lora Loader Stack (rgthree)",
-    "_meta": {
-      "title": "Lora Loader Stack (rgthree)"
-    }
-  },
-  "27": {
-    "inputs": {
-      "text": "An adult anime demon summoner with fiery amber eyes and black twin tails",
-      "clip": [
-        "26",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  }
+  "version": 0.4
 }
