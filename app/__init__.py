@@ -15,9 +15,11 @@ from app.resources.tts import router as tts_router
 from app.resources.images import router as images_router
 from app.resources.search import router as search_router
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging: keep normal operation quiet, only surface warnings/errors
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+for _n in ("httpx", "uvicorn", "asyncio", "fastapi", "urllib3", "watchfiles"):
+    logging.getLogger(_n).setLevel(logging.WARNING)
 
 
 def create_app() -> FastAPI:
@@ -40,26 +42,35 @@ def create_app() -> FastAPI:
     # Add logging middleware
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
-        """Log all HTTP requests and responses."""
+        """Only log requests/responses when an error occurs.
+
+        Keeps normal operation quiet while preserving error details.
+        """
         start_time = time.time()
-        
-        # Log request details
-        logger.info(f"📥 {request.method} {request.url.path}")
-        if request.method in ["POST", "PUT", "PATCH"]:
+        try:
+            response = await call_next(request)
+        except Exception:
+            logger.exception(f"Unhandled exception while handling {request.method} {request.url.path}")
+            raise
+
+        # Log only when status indicates error (4xx/5xx)
+        if response.status_code >= 400:
+            elapsed = time.time() - start_time
             try:
                 body = await request.body()
-                if body:
-                    logger.info(f"   Body: {body[:500]}")  # First 500 chars
+                body_snip = body[:1000] if body else None
             except Exception:
-                pass
-        
-        # Process request
-        response = await call_next(request)
-        
-        # Log response details
-        elapsed = time.time() - start_time
-        logger.info(f"📤 {response.status_code} {request.url.path} ({elapsed:.2f}s)")
-        
+                body_snip = None
+
+            logger.error(
+                "HTTP error %s %s %s (%.2fs)\nRequest body: %s",
+                response.status_code,
+                request.method,
+                request.url.path,
+                elapsed,
+                repr(body_snip),
+            )
+
         return response
 
     # Register routers

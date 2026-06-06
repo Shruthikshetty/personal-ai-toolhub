@@ -7,8 +7,14 @@
     {
       "id": 5,
       "type": "VAEDecode",
-      "pos": [1857.692227817717, 123.6697995425329],
-      "size": [210, 46],
+      "pos": [
+        1857.692227817717,
+        123.6697995425329
+      ],
+      "size": [
+        210,
+        46
+      ],
       "flags": {},
       "order": 9,
       "mode": 0,
@@ -29,7 +35,9 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "slot_index": 0,
-          "links": [10]
+          "links": [
+            10
+          ]
         }
       ],
       "properties": {
@@ -49,8 +57,14 @@
     {
       "id": 9,
       "type": "ModelSamplingAuraFlow",
-      "pos": [1350.5537187669177, 114.63893500408525],
-      "size": [210, 58],
+      "pos": [
+        1350.5537187669177,
+        114.63893500408525
+      ],
+      "size": [
+        210,
+        58
+      ],
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -66,7 +80,9 @@
           "name": "MODEL",
           "type": "MODEL",
           "slot_index": 0,
-          "links": [4]
+          "links": [
+            4
+          ]
         }
       ],
       "properties": {
@@ -81,13 +97,21 @@
         "secondTabOffset": 80,
         "secondTabWidth": 65
       },
-      "widgets_values": [3]
+      "widgets_values": [
+        3
+      ]
     },
     {
       "id": 8,
       "type": "UNETLoader",
-      "pos": [408.3729289278059, 303.7953481605049],
-      "size": [270, 82],
+      "pos": [
+        408.3729289278059,
+        303.7953481605049
+      ],
+      "size": [
+        270,
+        82
+      ],
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -96,7 +120,9 @@
         {
           "name": "MODEL",
           "type": "MODEL",
-          "links": [16]
+          "links": [
+            16
+          ]
         }
       ],
       "properties": {
@@ -118,13 +144,22 @@
         "secondTabOffset": 80,
         "secondTabWidth": 65
       },
-      "widgets_values": ["z_image_turbo_fp8_e4m3fn.safetensors", "default"]
+      "widgets_values": [
+        "z_image_turbo_fp8_e4m3fn.safetensors",
+        "default"
+      ]
     },
     {
       "id": 10,
       "type": "SaveImage",
-      "pos": [1997.656323676841, 241.37273400250285],
-      "size": [540.3558087308129, 624.0574745301391],
+      "pos": [
+        1997.656323676841,
+        241.37273400250285
+      ],
+      "size": [
+        540.3558087308129,
+        624.0574745301391
+      ],
       "flags": {},
       "order": 10,
       "mode": 0,
@@ -141,13 +176,21 @@
         "ver": "0.3.76",
         "Node name for S&R": "SaveImage"
       },
-      "widgets_values": ["zturbo"]
+      "widgets_values": [
+        "zturbo"
+      ]
     },
     {
       "id": 4,
       "type": "ConditioningZeroOut",
-      "pos": [1316.0814963366615, 731.0881558222216],
-      "size": [204.134765625, 26],
+      "pos": [
+        1316.0814963366615,
+        731.0881558222216
+      ],
+      "size": [
+        204.134765625,
+        26
+      ],
       "flags": {},
       "order": 7,
       "mode": 0,
@@ -162,7 +205,9 @@
         {
           "name": "CONDITIONING",
           "type": "CONDITIONING",
-          "links": [6]
+          "links": [
+            6
+          ]
         }
       ],
       "properties": {
@@ -182,8 +227,14 @@
     {
       "id": 1,
       "type": "CLIPLoader",
-      "pos": [402.75333592435425, 461.8923871256336],
-      "size": [270, 106],
+      "pos": [
+        402.75333592435425,
+        461.8923871256336
+      ],
+      "size": [
+        270,
+        106
+      ],
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -192,7 +243,9 @@
         {
           "name": "CLIP",
           "type": "CLIP",
-          "links": [14]
+          "links": [
+            14
+          ]
         }
       ],
       "properties": {
@@ -214,13 +267,23 @@
         "secondTabOffset": 80,
         "secondTabWidth": 65
       },
-      "widgets_values": ["qwen_3_4b.safetensors", "lumina2", "default"]
+      "widgets_values": [
+        "qwen_3_4b.safetensors",
+        "lumina2",
+        "default"
+      ]
     },
     {
       "id": 2,
       "type": "VAELoader",
-      "pos": [394.886111508884, 631.5423422236083],
-      "size": [270, 58],
+      "pos": [
+        394.886111508884,
+        631.5423422236083
+      ],
+      "size": [
+        270,
+        58
+      ],
       "flags": {},
       "order": 2,
       "mode": 0,
@@ -229,7 +292,9 @@
         {
           "name": "VAE",
           "type": "VAE",
-          "links": [3]
+          "links": [
+            3
+          ]
         }
       ],
       "properties": {
@@ -251,13 +316,21 @@
         "secondTabOffset": 80,
         "secondTabWidth": 65
       },
-      "widgets_values": ["ae.safetensors"]
+      "widgets_values": [
+        "ae.safetensors"
+      ]
     },
     {
       "id": 3,
       "type": "EmptySD3LatentImage",
-      "pos": [403.23627645425574, 738.9234972246891],
-      "size": [260, 110],
+      "pos": [
+        403.23627645425574,
+        738.9234972246891
+      ],
+      "size": [
+        260,
+        110
+      ],
       "flags": {},
       "order": 3,
       "mode": 0,
@@ -267,7 +340,9 @@
           "name": "LATENT",
           "type": "LATENT",
           "slot_index": 0,
-          "links": [7]
+          "links": [
+            7
+          ]
         }
       ],
       "properties": {
@@ -282,13 +357,23 @@
         "secondTabOffset": 80,
         "secondTabWidth": 65
       },
-      "widgets_values": [1024, 1024, 1]
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
     },
     {
       "id": 15,
       "type": "Lora Loader Stack (rgthree)",
-      "pos": [793.0173240351086, 325.5165397684175],
-      "size": [271.878515625, 246],
+      "pos": [
+        793.0173240351086,
+        325.5165397684175
+      ],
+      "size": [
+        271.878515625,
+        246
+      ],
       "flags": {},
       "order": 4,
       "mode": 0,
@@ -308,12 +393,16 @@
         {
           "name": "MODEL",
           "type": "MODEL",
-          "links": [17]
+          "links": [
+            17
+          ]
         },
         {
           "name": "CLIP",
           "type": "CLIP",
-          "links": [15]
+          "links": [
+            15
+          ]
         }
       ],
       "properties": {
@@ -321,13 +410,28 @@
         "ver": "1.0.2511270846",
         "Node name for S&R": "Lora Loader Stack (rgthree)"
       },
-      "widgets_values": ["None", 0.8, "None", 1, "None", 1, "None", 1]
+      "widgets_values": [
+        "None",
+        0.8,
+        "None",
+        1,
+        "None",
+        1,
+        "None",
+        1
+      ]
     },
     {
       "id": 6,
       "type": "KSampler",
-      "pos": [1617.8995279343173, 309.13835100819506],
-      "size": [315, 474],
+      "pos": [
+        1617.8995279343173,
+        309.13835100819506
+      ],
+      "size": [
+        315,
+        474
+      ],
       "flags": {},
       "order": 8,
       "mode": 0,
@@ -358,7 +462,9 @@
           "name": "LATENT",
           "type": "LATENT",
           "slot_index": 0,
-          "links": [2]
+          "links": [
+            2
+          ]
         }
       ],
       "properties": {
@@ -374,7 +480,7 @@
         "secondTabWidth": 65
       },
       "widgets_values": [
-        1001352838358392,
+        1080541677396654,
         "randomize",
         8,
         1,
@@ -386,8 +492,14 @@
     {
       "id": 7,
       "type": "CLIPTextEncode",
-      "pos": [1129.963630983486, 319.1606528829056],
-      "size": [410, 370],
+      "pos": [
+        1129.963630983486,
+        319.1606528829056
+      ],
+      "size": [
+        410,
+        370
+      ],
       "flags": {},
       "order": 6,
       "mode": 0,
@@ -402,7 +514,10 @@
         {
           "name": "CONDITIONING",
           "type": "CONDITIONING",
-          "links": [1, 5]
+          "links": [
+            1,
+            5
+          ]
         }
       ],
       "properties": {
@@ -418,29 +533,118 @@
         "secondTabWidth": 65
       },
       "widgets_values": [
-        "Digital anime-style illustration of a blonde fair-skinned woman with large breasts and a slim toned physique. She wears a gold scale-patterned bikini and arm bracers with two golden dragon heads emerging from her back wings spread. Her expression is confident and fierce. The background is dark with glowing molten lava enhancing the dramatic mythical atmosphere. The artist's style emphasizes sharp lines and vibrant colors"
+        " young anime girl with long dark hair named Elsie sitting cross-legged on a messy unmade bed, surrounded by colorful anime figurines and empty energy drink cans. She is on a school day mid-afternoon, wearing cozy pajamas. She has three large monitors in front of her, glowing brightly and illuminating her pale face. She is frantically minimizing a game as she hears footsteps approaching. Her expression shifts dramatically to a syrupy, sweet smile as she lo"
       ]
     }
   ],
   "links": [
-    [1, 7, 0, 4, 0, "CONDITIONING"],
-    [2, 6, 0, 5, 0, "LATENT"],
-    [3, 2, 0, 5, 1, "VAE"],
-    [4, 9, 0, 6, 0, "MODEL"],
-    [5, 7, 0, 6, 1, "CONDITIONING"],
-    [6, 4, 0, 6, 2, "CONDITIONING"],
-    [7, 3, 0, 6, 3, "LATENT"],
-    [10, 5, 0, 10, 0, "IMAGE"],
-    [14, 1, 0, 15, 1, "CLIP"],
-    [15, 15, 1, 7, 0, "CLIP"],
-    [16, 8, 0, 15, 0, "MODEL"],
-    [17, 15, 0, 9, 0, "MODEL"]
+    [
+      1,
+      7,
+      0,
+      4,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      2,
+      6,
+      0,
+      5,
+      0,
+      "LATENT"
+    ],
+    [
+      3,
+      2,
+      0,
+      5,
+      1,
+      "VAE"
+    ],
+    [
+      4,
+      9,
+      0,
+      6,
+      0,
+      "MODEL"
+    ],
+    [
+      5,
+      7,
+      0,
+      6,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      6,
+      4,
+      0,
+      6,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      3,
+      0,
+      6,
+      3,
+      "LATENT"
+    ],
+    [
+      10,
+      5,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      1,
+      0,
+      15,
+      1,
+      "CLIP"
+    ],
+    [
+      15,
+      15,
+      1,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      16,
+      8,
+      0,
+      15,
+      0,
+      "MODEL"
+    ],
+    [
+      17,
+      15,
+      0,
+      9,
+      0,
+      "MODEL"
+    ]
   ],
   "groups": [
     {
       "id": 1,
       "title": "Prompt",
-      "bounding": [1104.8550036118772, 218.50923943057035, 450, 540],
+      "bounding": [
+        1104.8550036118772,
+        218.50923943057035,
+        450,
+        540
+      ],
       "color": "#3f789e",
       "font_size": 24,
       "flags": {}
@@ -449,7 +653,9 @@
       "id": 2,
       "title": "Load Models",
       "bounding": [
-        368.50467420658276, 211.7237891268426, 350.53166889503314,
+        368.50467420658276,
+        211.7237891268426,
+        350.53166889503314,
         657.7675917236675
       ],
       "color": "#3f789e",
@@ -460,7 +666,9 @@
       "id": 3,
       "title": "Load LoRA + Set Strength",
       "bounding": [
-        752.9163203988645, 216.86220678620774, 328.591387017024,
+        752.9163203988645,
+        216.86220678620774,
+        328.591387017024,
         370.58204572962404
       ],
       "color": "#3f789e",
@@ -471,7 +679,9 @@
       "id": 4,
       "title": "Ksampler Settings",
       "bounding": [
-        1592.6092188369237, 218.978232364562, 373.2098143494095,
+        1592.6092188369237,
+        218.978232364562,
+        373.2098143494095,
         591.1065392328362
       ],
       "color": "#3f789e",
@@ -482,8 +692,11 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.0508560926405681,
-      "offset": [-518.9082124397494, 17.90718081106519]
+      "scale": 0.9553237205823331,
+      "offset": [
+        -671.1595699965234,
+        91.18868908308691
+      ]
     },
     "frontendVersion": "1.39.19",
     "workflowRendererVersion": "LG",

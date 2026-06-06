@@ -37,5 +37,18 @@
       "default_size": "1024x1024",
       "workflow_file": "Z-Image-Turbo-LoRA.json"
     }
+  },
+  {
+    "id": "Flux-Dev-image",
+    "name": "flux dev",
+    "type": "image_gen",
+    "version": "1.0",
+    "status": "available",
+    "description": "Custom wrapper for ComfyUI workflows for flux dev model",
+    "parameters": {
+      "default_n": 1,
+      "default_size": "1024x1024",
+      "workflow_file": "Flux-Dev-GGUF-Workflow.json"
+    }
   }
 ]
