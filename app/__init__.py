@@ -1,14 +1,20 @@
-"""FastAPI application factory.
+"""
+FastAPI application factory.
 
 Creates and configures the FastAPI app instance with OpenAPI metadata
 and registers all API routers.
 """
 
 import logging
+import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env before importing resources
+load_dotenv()
+
 from fastapi import FastAPI, Request
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
-import time
 
 from app.resources.models import router as models_router
 from app.resources.tts import router as tts_router
@@ -22,6 +28,7 @@ for _n in ("httpx", "uvicorn", "asyncio", "fastapi", "urllib3", "watchfiles"):
     logging.getLogger(_n).setLevel(logging.WARNING)
 
 
+# create the fast api app
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
@@ -42,7 +49,8 @@ def create_app() -> FastAPI:
     # Add logging middleware
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
-        """Only log requests/responses when an error occurs.
+        """
+        Only log requests/responses when an error occurs.
 
         Keeps normal operation quiet while preserving error details.
         """
@@ -79,6 +87,7 @@ def create_app() -> FastAPI:
     app.include_router(images_router)
     app.include_router(search_router)
 
+    # heath cheque endpoint
     @app.get("/", tags=["Health"])
     def health_check():
         """Health check endpoint."""

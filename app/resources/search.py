@@ -7,7 +7,6 @@ Designed to be used as a 'tool' by AI models.
 from fastapi import APIRouter, HTTPException
 import httpx
 from bs4 import BeautifulSoup
-from typing import List
 
 from app.schemas.search import SearchRequest, SearchResponse, SearchResult
 

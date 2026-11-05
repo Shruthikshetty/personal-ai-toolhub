@@ -1,5 +1,10 @@
 """Entry point for the Custom AI API server."""
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
+
 import uvicorn
 from app import create_app
 
