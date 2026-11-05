@@ -2,3 +2,7 @@ venv
 __pycache__
 .vscode
 .env
+plans/
+last_prompt*.json
+*.wav
+*.mp3
