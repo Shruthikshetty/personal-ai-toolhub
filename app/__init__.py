@@ -22,6 +22,8 @@ def create_app():
     # Load .env and all heavy imports only when the server is actually starting
     load_dotenv()
 
+    from contextlib import asynccontextmanager
+
     from fastapi import FastAPI, Request
 
     from app.mcp.hello import mcp as hello_mcp
@@ -29,6 +31,14 @@ def create_app():
     from app.resources.models import router as models_router
     from app.resources.search import router as search_router
     from app.resources.tts import router as tts_router
+
+    # Build the MCP ASGI app first so its lifespan can be propagated to FastAPI.
+    mcp_app = hello_mcp.http_app(path="/sse", transport="streamable-http")
+
+    @asynccontextmanager
+    async def lifespan(app):
+        async with mcp_app.lifespan(app):
+            yield
 
     app = FastAPI(
         title="Custom AI API",
@@ -43,6 +53,7 @@ def create_app():
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        lifespan=lifespan,
     )
 
     # Add logging middleware
@@ -88,8 +99,8 @@ def create_app():
     app.include_router(images_router)
     app.include_router(search_router)
 
-    # Register all MCP servers for AI agents
-    app.mount("/mcp/hello", hello_mcp.http_app(transport="sse"))
+    # Register all MCP servers for AI agents (Streamable HTTP)
+    app.mount("/mcp/hello", mcp_app)
 
     # Health check endpoint
     @app.get("/", tags=["Health"])

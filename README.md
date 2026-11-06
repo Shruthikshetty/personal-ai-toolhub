@@ -175,9 +175,9 @@ Add to your Claude Desktop / Cursor / Antigravity MCP configuration settings:
 }
 ```
 
-#### D. Network Streaming (SSE)
+#### D. Network Streaming (Streamable HTTP / SSE)
 Mounted into the main FastAPI server at:
-- **SSE Stream:** `http://localhost:8080/mcp/hello/sse`
+- **MCP Endpoint:** `http://localhost:8080/mcp/hello`
 
 ---
 
@@ -259,7 +259,7 @@ curl http://localhost:8080/v1/images/generations \
 
 | Protocol | Route | Description |
 | :--- | :--- | :--- |
-| `GET` | `/mcp/hello/sse` | FastMCP Server-Sent Events stream for AI agents |
+| `POST / GET` | `/mcp/hello` | FastMCP Streamable HTTP / SSE endpoint for AI agents |
 
 ---
 
@@ -293,11 +293,3 @@ Make sure your virtual environment is activated before running development tools
 | `ruff` | Linter and formatter (development) |
 
 ---
-
-## 7. Architecture Plans & Specs
-
-Detailed design blueprints and implementation roadmaps are stored in the `plans/` directory:
-
-- [MCP, CLI & Agent Skills Architecture](plans/mcp_cli_skills_architecture.md) — Comprehensive guide on the 4-layer design pattern, how core services bridge to FastMCP, Typer, REST, and Antigravity skills.
-- [Model Management & Download Lifecycle](plans/model_management_and_download.md) — Architecture plan for registering, downloading, and tracking local AI models (Kokoro, ComfyUI checkpoints, GGUFs) with background job status.
-
