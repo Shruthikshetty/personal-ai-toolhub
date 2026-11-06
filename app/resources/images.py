@@ -34,6 +34,12 @@ logger.setLevel(logging.ERROR)
 # Configuration for ComfyUI
 COMFYUI_SERVER_URL = os.getenv("COMFYUI_SERVER_URL", "http://127.0.0.1:8188")
 
+# ComfyUI workflow node IDs — these match the exported workflow JSON.
+# If you re-export the workflow, update these to match the new node IDs.
+NODE_ID_POSITIVE_PROMPT = 7  # CLIPTextEncode (positive prompt)
+NODE_ID_LATENT_IMAGE = 3  # EmptySD3LatentImage (width, height, batch)
+NODE_ID_KSAMPLER = 6  # KSampler (seed)
+
 
 @router.post(
     "/generations",
@@ -115,7 +121,7 @@ async def create_image(request: ImageGenerationRequest):
 
             for node in workflow_data.get("nodes", []):
                 nid = node.get("id")
-                if nid == 7:
+                if nid == NODE_ID_POSITIVE_PROMPT:
                     if "widgets_values" in node and len(node["widgets_values"]) > 0:
                         node["widgets_values"][0] = request.prompt
                     elif (
@@ -124,7 +130,7 @@ async def create_image(request: ImageGenerationRequest):
                         and "text" in node["inputs"]
                     ):
                         node["inputs"]["text"] = request.prompt
-                elif nid == 3:
+                elif nid == NODE_ID_LATENT_IMAGE:
                     try:
                         w, h = map(int, req_size.split("x"))
                         if (
@@ -135,11 +141,12 @@ async def create_image(request: ImageGenerationRequest):
                             node["widgets_values"][1] = h
                             node["widgets_values"][2] = req_n
                     except Exception as e:
-                        logger.error(f"Failed to set size/batch for node 3: {e}")
-                elif nid == 6:
+                        logger.error(
+                            f"Failed to set size/batch for node {NODE_ID_LATENT_IMAGE}: {e}"
+                        )
+                elif nid == NODE_ID_KSAMPLER:
                     if "widgets_values" in node and len(node["widgets_values"]) > 0:
                         node["widgets_values"][0] = seed
-                        # seed injected; no logging on success
 
             # 4. Convert export format to ComfyUI API format (dict keyed by node id)
             # Build links map: (target_node_id, target_slot) -> (source_node_id, source_slot)
@@ -346,7 +353,7 @@ async def create_image(request: ImageGenerationRequest):
                 try:
                     error_json = submit_res.json()
                     error_detail = json.dumps(error_json, indent=2)
-                except:
+                except Exception:
                     pass
                 logger.error(
                     f"ComfyUI submit error (status {submit_res.status_code}): {error_detail}"
@@ -381,7 +388,7 @@ async def create_image(request: ImageGenerationRequest):
                             logger.error("Unexpected history entry type for prompt_id")
                             raise HTTPException(
                                 status_code=500,
-                                detail=f"Unexpected history entry type for prompt_id: {type(hist_entry)} (saved last_history_{prompt_id}.json)",
+                                detail=f"Unexpected history entry type for prompt_id: {type(hist_entry)}",
                             )
 
                         outputs = hist_entry.get("outputs", {})
