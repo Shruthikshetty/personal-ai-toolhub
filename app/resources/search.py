@@ -61,6 +61,14 @@ async def web_search(request: SearchRequest):
                     break
 
         return SearchResponse(results=results, query=request.query)
+    except httpx.RequestError as e:
+        # Network-level failure — DuckDuckGo unreachable, DNS failure, timeout, etc.
+        raise HTTPException(
+            status_code=503,
+            detail=f"Search service unavailable: {e!s}",
+        )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {e!s}")
 
