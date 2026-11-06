@@ -11,3 +11,4 @@ last_prompt*.json
 dist/
 build/
 *.egg-info/
+backlog.txt
