@@ -10,16 +10,6 @@ import time
 
 from dotenv import load_dotenv
 
-# Load environment variables from .env before importing resources
-load_dotenv()
-
-from fastapi import FastAPI, Request
-
-from app.mcp.hello import mcp as hello_mcp
-from app.resources.images import router as images_router
-from app.resources.models import router as models_router
-from app.resources.search import router as search_router
-from app.resources.tts import router as tts_router
 
 # Configure logging: keep normal operation quiet, only surface warnings/errors
 logging.basicConfig(level=logging.WARNING)
@@ -28,9 +18,19 @@ for _n in ("httpx", "uvicorn", "asyncio", "fastapi", "urllib3", "watchfiles"):
     logging.getLogger(_n).setLevel(logging.WARNING)
 
 
-# create the fast api app
-def create_app() -> FastAPI:
+def create_app():
     """Create and configure the FastAPI application."""
+    # Load .env and all heavy imports only when the server is actually starting
+    load_dotenv()
+
+    from fastapi import FastAPI, Request
+
+    from app.mcp.hello import mcp as hello_mcp
+    from app.resources.images import router as images_router
+    from app.resources.models import router as models_router
+    from app.resources.search import router as search_router
+    from app.resources.tts import router as tts_router
+
     app = FastAPI(
         title="Custom AI API",
         description=(
@@ -89,10 +89,10 @@ def create_app() -> FastAPI:
     app.include_router(images_router)
     app.include_router(search_router)
 
-    # register all the mcp .
+    # Register all MCP servers
     app.mount("/mcp/hello", hello_mcp.http_app(transport="sse"))
 
-    # heath cheque endpoint
+    # Health check endpoint
     @app.get("/", tags=["Health"])
     def health_check():
         """Health check endpoint."""

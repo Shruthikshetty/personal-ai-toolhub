@@ -10,11 +10,7 @@ Routes:
 
 import io
 
-import numpy as np
-import soundfile as sf
-import torch
 from fastapi import APIRouter, HTTPException, Response
-from kokoro import KPipeline
 
 from app.schemas.tts import TTSRequest
 
@@ -40,10 +36,13 @@ _PIPELINE = None
 
 
 def get_pipeline():
-    """Returns a singleton instance of the Kokoro pipeline."""
+    """Returns a singleton instance of the Kokoro pipeline. Lazy-imports heavy deps."""
     global _PIPELINE
     if _PIPELINE is None:
         try:
+            import torch
+            from kokoro import KPipeline
+
             # Determine device: use CUDA if available, otherwise CPU
             device = "cuda" if torch.cuda.is_available() else "cpu"
             # Initialize the pipeline for American English ('a')
@@ -90,6 +89,8 @@ async def synthesize_speech(request: TTSRequest):
     - **speed**: Speed multiplier, 0.25–4.0 (default: 1.0)
     - **response_format**: Output audio format — currently only WAV is supported
     """
+    import numpy as np
+    import soundfile as sf
 
     # Validate voice
     if request.voice not in SUPPORTED_VOICES:
