@@ -9,23 +9,30 @@ Routes:
 """
 
 import io
-import torch
+
 import numpy as np
 import soundfile as sf
+import torch
 from fastapi import APIRouter, HTTPException, Response
 from kokoro import KPipeline
 
 from app.schemas.tts import TTSRequest
 
-
 router = APIRouter(prefix="/v1/audio", tags=["Audio"])
 
 # Supported voices (must match models.json config)
 SUPPORTED_VOICES = [
-    "af_heart", "af_bella", "af_nicole", "af_sarah", "af_sky",
-    "am_adam", "am_michael",
-    "bf_emma", "bf_isabella",
-    "bm_george", "bm_lewis",
+    "af_heart",
+    "af_bella",
+    "af_nicole",
+    "af_sarah",
+    "af_sky",
+    "am_adam",
+    "am_michael",
+    "bf_emma",
+    "bf_isabella",
+    "bm_george",
+    "bm_lewis",
 ]
 
 # Global pipeline instance (Lazy-loaded)
@@ -38,14 +45,14 @@ def get_pipeline():
     if _PIPELINE is None:
         try:
             # Determine device: use CUDA if available, otherwise CPU
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            device = "cuda" if torch.cuda.is_available() else "cpu"
             # Initialize the pipeline for American English ('a')
-            _PIPELINE = KPipeline(lang_code='a', device=device)
+            _PIPELINE = KPipeline(lang_code="a", device=device)
         except Exception as e:
             # This might happen if espeak-ng is not installed or path is wrong
             raise HTTPException(
                 status_code=503,
-                detail=f"Failed to initialize TTS model. Ensure espeak-ng is installed. Error: {str(e)}"
+                detail=f"Failed to initialize TTS model. Ensure espeak-ng is installed. Error: {e!s}",
             )
     return _PIPELINE
 
@@ -113,7 +120,7 @@ async def synthesize_speech(request: TTSRequest):
 
         # Write audio to buffer in WAV format
         buffer = io.BytesIO()
-        sf.write(buffer, full_audio, 24000, format='WAV')
+        sf.write(buffer, full_audio, 24000, format="WAV")
         buffer.seek(0)
 
         # Return the audio stream
@@ -124,11 +131,11 @@ async def synthesize_speech(request: TTSRequest):
                 "Content-Disposition": 'attachment; filename="speech.wav"',
                 "X-Generated-Text-Length": str(len(request.input)),
                 "X-Generated-Voice": request.voice,
-            }
+            },
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Synthesis failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Synthesis failed: {e!s}")
 
 
 @router.get(

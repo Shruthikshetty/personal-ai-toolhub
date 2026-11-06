@@ -6,3 +6,8 @@ plans/
 last_prompt*.json
 *.wav
 *.mp3
+.ruff_cache
+*.egg-info/
+dist/
+build/
+*.egg-info/

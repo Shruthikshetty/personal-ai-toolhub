@@ -7,18 +7,23 @@ Routes:
   POST /v1/images/generations  — generate an image from text
 """
 
-import os
-import time
-import json
 import asyncio
 import base64
-import httpx
+import json
+import logging
+import os
+import time
 from pathlib import Path
+
+import httpx
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.images import ImageGenerationRequest, ImageGenerationResponse, ImageGenerationData
 from app.resources.models import _read_models
-import logging
+from app.schemas.images import (
+    ImageGenerationData,
+    ImageGenerationRequest,
+    ImageGenerationResponse,
+)
 
 router = APIRouter(prefix="/v1/images", tags=["Images"])
 
@@ -28,6 +33,7 @@ logger.setLevel(logging.ERROR)
 
 # Configuration for ComfyUI
 COMFYUI_SERVER_URL = os.getenv("COMFYUI_SERVER_URL", "http://127.0.0.1:8188")
+
 
 @router.post(
     "/generations",
@@ -51,25 +57,41 @@ async def create_image(request: ImageGenerationRequest):
         try:
             # 1. Resolve requested model
             models = _read_models()
-            model_info = next((m for m in models if m["id"] == request.model and m.get("type") == "image_gen"), None)
-            
+            model_info = next(
+                (
+                    m
+                    for m in models
+                    if m["id"] == request.model and m.get("type") == "image_gen"
+                ),
+                None,
+            )
+
             if not model_info:
-                raise HTTPException(status_code=400, detail=f"Image generation model '{request.model}' not found.")
-                
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Image generation model '{request.model}' not found.",
+                )
+
             workflow_filename = model_info.get("parameters", {}).get("workflow_file")
-            
+
             if not workflow_filename:
-                raise HTTPException(status_code=500, detail=f"Model '{request.model}' is missing 'workflow_file' configuration.")
-            
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Model '{request.model}' is missing 'workflow_file' configuration.",
+                )
+
             # 2. Load the workflow
             workflow_path = Path(__file__).parent.parent / "data" / workflow_filename
-            
+
             if not workflow_path.exists():
-                raise HTTPException(status_code=500, detail=f"Workflow file '{workflow_filename}' not found for model '{request.model}'.")
-                
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Workflow file '{workflow_filename}' not found for model '{request.model}'.",
+                )
+
             with open(workflow_path, "r", encoding="utf-8") as f:
                 workflow_data = json.load(f)
-            
+
             # 3. Prepare workflow for ComfyUI: keep original export format (nodes array)
             # Ensure each node has a `class_type` field (ComfyUI requires this)
             for node in workflow_data.get("nodes", []):
@@ -96,12 +118,19 @@ async def create_image(request: ImageGenerationRequest):
                 if nid == 7:
                     if "widgets_values" in node and len(node["widgets_values"]) > 0:
                         node["widgets_values"][0] = request.prompt
-                    elif "inputs" in node and isinstance(node["inputs"], dict) and "text" in node["inputs"]:
+                    elif (
+                        "inputs" in node
+                        and isinstance(node["inputs"], dict)
+                        and "text" in node["inputs"]
+                    ):
                         node["inputs"]["text"] = request.prompt
                 elif nid == 3:
                     try:
                         w, h = map(int, req_size.split("x"))
-                        if "widgets_values" in node and len(node["widgets_values"]) >= 3:
+                        if (
+                            "widgets_values" in node
+                            and len(node["widgets_values"]) >= 3
+                        ):
                             node["widgets_values"][0] = w
                             node["widgets_values"][1] = h
                             node["widgets_values"][2] = req_n
@@ -116,7 +145,12 @@ async def create_image(request: ImageGenerationRequest):
             # Build links map: (target_node_id, target_slot) -> (source_node_id, source_slot)
             links_map = {}
             for link in workflow_data.get("links", []):
-                src_node, src_slot, tgt_node, tgt_slot = link[1], link[2], link[3], link[4]
+                src_node, src_slot, tgt_node, tgt_slot = (
+                    link[1],
+                    link[2],
+                    link[3],
+                    link[4],
+                )
                 links_map[(tgt_node, tgt_slot)] = (src_node, src_slot)
 
             # Inject the runtime prompt into the CLIPTextEncode node that feeds the KSampler 'positive' input.
@@ -124,7 +158,11 @@ async def create_image(request: ImageGenerationRequest):
                 positive_sources = set()
                 for node in workflow_data.get("nodes", []):
                     if node.get("type") == "KSampler":
-                        for slot_idx, input_spec in enumerate(node.get("inputs", []) if isinstance(node.get("inputs", []), list) else []):
+                        for slot_idx, input_spec in enumerate(
+                            node.get("inputs", [])
+                            if isinstance(node.get("inputs", []), list)
+                            else []
+                        ):
                             if input_spec.get("name") == "positive":
                                 key = (node.get("id"), slot_idx)
                                 if key in links_map:
@@ -133,10 +171,20 @@ async def create_image(request: ImageGenerationRequest):
 
                 if positive_sources:
                     for node in workflow_data.get("nodes", []):
-                        if node.get("id") in positive_sources and (node.get("type") == "CLIPTextEncode" or node.get("class_type") == "CLIPTextEncode"):
-                            if "widgets_values" in node and len(node["widgets_values"]) > 0:
+                        if node.get("id") in positive_sources and (
+                            node.get("type") == "CLIPTextEncode"
+                            or node.get("class_type") == "CLIPTextEncode"
+                        ):
+                            if (
+                                "widgets_values" in node
+                                and len(node["widgets_values"]) > 0
+                            ):
                                 node["widgets_values"][0] = request.prompt
-                            elif "inputs" in node and isinstance(node["inputs"], dict) and "text" in node["inputs"]:
+                            elif (
+                                "inputs" in node
+                                and isinstance(node["inputs"], dict)
+                                and "text" in node["inputs"]
+                            ):
                                 node["inputs"]["text"] = request.prompt
             except Exception:
                 # Don't fail generation for prompt injection; log only on errors
@@ -147,7 +195,11 @@ async def create_image(request: ImageGenerationRequest):
                 nid = node.get("id")
                 # Build inputs dict using links_map and input definitions
                 inputs_dict = {}
-                for slot_idx, input_spec in enumerate(node.get("inputs", []) if isinstance(node.get("inputs", []), list) else []):
+                for slot_idx, input_spec in enumerate(
+                    node.get("inputs", [])
+                    if isinstance(node.get("inputs", []), list)
+                    else []
+                ):
                     name = input_spec.get("name", f"input_{slot_idx}")
                     if (nid, slot_idx) in links_map:
                         src_id, src_slot = links_map[(nid, slot_idx)]
@@ -163,7 +215,10 @@ async def create_image(request: ImageGenerationRequest):
                 ctype = node_struct["class_type"]
                 try:
                     if ctype == "SaveImage":
-                        if "filename_prefix" not in node_struct["inputs"] and len(wv) > 0:
+                        if (
+                            "filename_prefix" not in node_struct["inputs"]
+                            and len(wv) > 0
+                        ):
                             node_struct["inputs"]["filename_prefix"] = wv[0]
                     elif ctype == "VAELoader":
                         if "vae_name" not in node_struct["inputs"] and len(wv) > 0:
@@ -186,14 +241,20 @@ async def create_image(request: ImageGenerationRequest):
                         if len(wv) > 0:
                             node_struct["inputs"].setdefault("unet_name", wv[0])
                         # infer exact weight_dtype token from filename when possible
-                        if "weight_dtype" not in node_struct["inputs"] and len(wv) > 0 and isinstance(wv[0], str):
+                        if (
+                            "weight_dtype" not in node_struct["inputs"]
+                            and len(wv) > 0
+                            and isinstance(wv[0], str)
+                        ):
                             fname = wv[0]
                             if "fp8_e4m3fn" in fname:
                                 node_struct["inputs"]["weight_dtype"] = "fp8_e4m3fn"
                             elif "fp8_e5m2" in fname:
                                 node_struct["inputs"]["weight_dtype"] = "fp8_e5m2"
                             elif "fp8_e4m3fn_fast" in fname:
-                                node_struct["inputs"]["weight_dtype"] = "fp8_e4m3fn_fast"
+                                node_struct["inputs"]["weight_dtype"] = (
+                                    "fp8_e4m3fn_fast"
+                                )
                             else:
                                 node_struct["inputs"]["weight_dtype"] = "default"
                     elif ctype and ctype.startswith("Lora Loader Stack"):
@@ -202,7 +263,9 @@ async def create_image(request: ImageGenerationRequest):
                             idx = (i // 2) + 1
                             node_struct["inputs"].setdefault(f"lora_{idx:02d}", wv[i])
                             if i + 1 < len(wv):
-                                node_struct["inputs"].setdefault(f"strength_{idx:02d}", wv[i+1])
+                                node_struct["inputs"].setdefault(
+                                    f"strength_{idx:02d}", wv[i + 1]
+                                )
                     elif ctype == "CLIPTextEncode":
                         if "text" not in node_struct["inputs"] and len(wv) > 0:
                             node_struct["inputs"]["text"] = wv[0]
@@ -217,11 +280,17 @@ async def create_image(request: ImageGenerationRequest):
                             if isinstance(wv[0], str):
                                 fname = wv[0]
                                 if "fp8_e4m3fn" in fname:
-                                    node_struct["inputs"].setdefault("weight_dtype", "fp8_e4m3fn")
+                                    node_struct["inputs"].setdefault(
+                                        "weight_dtype", "fp8_e4m3fn"
+                                    )
                                 elif "fp8_e5m2" in fname:
-                                    node_struct["inputs"].setdefault("weight_dtype", "fp8_e5m2")
+                                    node_struct["inputs"].setdefault(
+                                        "weight_dtype", "fp8_e5m2"
+                                    )
                                 else:
-                                    node_struct["inputs"].setdefault("weight_dtype", "default")
+                                    node_struct["inputs"].setdefault(
+                                        "weight_dtype", "default"
+                                    )
 
                     if "dualcliploader" in lc or ("dualc" in lc and "clip" in lc):
                         # DualCLIPLoaderGGUF -> map clip names and type
@@ -255,7 +324,9 @@ async def create_image(request: ImageGenerationRequest):
                         # Provide a safe default for denoise
                         node_struct["inputs"].setdefault("denoise", 1.0)
                 except Exception as e:
-                    logger.error(f"Failed to map widgets to inputs for node {nid} ({ctype}): {e}")
+                    logger.error(
+                        f"Failed to map widgets to inputs for node {nid} ({ctype}): {e}"
+                    )
                 # Include outputs and properties if present
                 if "outputs" in node:
                     node_struct["outputs"] = node.get("outputs")
@@ -266,8 +337,10 @@ async def create_image(request: ImageGenerationRequest):
 
             prompt_payload = {"prompt": workflow_api}
             # Do not write debug files in production; only send payload to ComfyUI
-            submit_res = await client.post(f"{COMFYUI_SERVER_URL}/prompt", json=prompt_payload, timeout=10.0)
-            
+            submit_res = await client.post(
+                f"{COMFYUI_SERVER_URL}/prompt", json=prompt_payload, timeout=10.0
+            )
+
             if submit_res.status_code != 200:
                 error_detail = submit_res.text
                 try:
@@ -275,19 +348,28 @@ async def create_image(request: ImageGenerationRequest):
                     error_detail = json.dumps(error_json, indent=2)
                 except:
                     pass
-                logger.error(f"ComfyUI submit error (status {submit_res.status_code}): {error_detail}")
-                raise HTTPException(status_code=submit_res.status_code, detail=f"ComfyUI submit error: {error_detail}")
-                
+                logger.error(
+                    f"ComfyUI submit error (status {submit_res.status_code}): {error_detail}"
+                )
+                raise HTTPException(
+                    status_code=submit_res.status_code,
+                    detail=f"ComfyUI submit error: {error_detail}",
+                )
+
             prompt_id = submit_res.json().get("prompt_id")
             if not prompt_id:
-                raise HTTPException(status_code=500, detail="No prompt_id returned from ComfyUI.")
-            
+                raise HTTPException(
+                    status_code=500, detail="No prompt_id returned from ComfyUI."
+                )
+
             # Workflow submitted; no verbose logging
 
             # 5. Poll ComfyUI History for completion
             max_retries = 120  # 120 seconds timeout (generations can be slow)
             for attempt in range(max_retries):
-                hist_res = await client.get(f"{COMFYUI_SERVER_URL}/history/{prompt_id}", timeout=10.0)
+                hist_res = await client.get(
+                    f"{COMFYUI_SERVER_URL}/history/{prompt_id}", timeout=10.0
+                )
                 if hist_res.status_code == 200:
                     history = hist_res.json()
                     # Do not persist history payloads; only inspect outputs when present
@@ -297,7 +379,10 @@ async def create_image(request: ImageGenerationRequest):
                         hist_entry = history[prompt_id]
                         if not isinstance(hist_entry, dict):
                             logger.error("Unexpected history entry type for prompt_id")
-                            raise HTTPException(status_code=500, detail=f"Unexpected history entry type for prompt_id: {type(hist_entry)} (saved last_history_{prompt_id}.json)")
+                            raise HTTPException(
+                                status_code=500,
+                                detail=f"Unexpected history entry type for prompt_id: {type(hist_entry)} (saved last_history_{prompt_id}.json)",
+                            )
 
                         outputs = hist_entry.get("outputs", {})
 
@@ -314,36 +399,60 @@ async def create_image(request: ImageGenerationRequest):
                                     img_url = f"{COMFYUI_SERVER_URL}/view?filename={filename}&subfolder={subfolder}&type={type_}"
 
                                     b64_encoded = None
-                                    if getattr(request, "response_format", "url") == "b64_json":
+                                    if (
+                                        getattr(request, "response_format", "url")
+                                        == "b64_json"
+                                    ):
                                         # Fetch the image and encode it
                                         try:
-                                            img_res = await client.get(img_url, timeout=10.0)
+                                            img_res = await client.get(
+                                                img_url, timeout=10.0
+                                            )
                                             if img_res.status_code == 200:
-                                                b64_encoded = base64.b64encode(img_res.content).decode("utf-8")
+                                                b64_encoded = base64.b64encode(
+                                                    img_res.content
+                                                ).decode("utf-8")
                                         except Exception as e:
-                                            logger.error(f"Failed to fetch image for b64 encoding: {e}")
+                                            logger.error(
+                                                f"Failed to fetch image for b64 encoding: {e}"
+                                            )
 
-                                    images_data.append(ImageGenerationData(
-                                        url=img_url if request.response_format == "url" else None,
-                                        b64_json=b64_encoded,
-                                    ))
+                                    images_data.append(
+                                        ImageGenerationData(
+                                            url=img_url
+                                            if request.response_format == "url"
+                                            else None,
+                                            b64_json=b64_encoded,
+                                        )
+                                    )
 
                         if not images_data:
-                            raise HTTPException(status_code=500, detail="ComfyUI completed but no images were found in output.")
+                            raise HTTPException(
+                                status_code=500,
+                                detail="ComfyUI completed but no images were found in output.",
+                            )
 
-                        return ImageGenerationResponse(created=int(time.time()), data=images_data)
+                        return ImageGenerationResponse(
+                            created=int(time.time()), data=images_data
+                        )
 
                 await asyncio.sleep(1.0)
-            
-            raise HTTPException(status_code=504, detail="ComfyUI timeout: Generation took too long.")
+
+            raise HTTPException(
+                status_code=504, detail="ComfyUI timeout: Generation took too long."
+            )
 
         except httpx.RequestError as e:
             logger.exception("Failed to communicate with ComfyUI")
-            raise HTTPException(status_code=503, detail=f"Failed to communicate with ComfyUI: {str(e)}")
+            raise HTTPException(
+                status_code=503, detail=f"Failed to communicate with ComfyUI: {e!s}"
+            )
         except HTTPException:
             # Let FastAPI handle explicit HTTPExceptions
             raise
         except Exception as e:
             # Log full traceback so the root cause is visible in logs
             logger.exception("Image generation failed")
-            raise HTTPException(status_code=500, detail=f"Image generation failed: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Image generation failed: {e!s}"
+            )

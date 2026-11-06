@@ -1,18 +1,20 @@
 """Pydantic schemas for the /v1/audio/speech endpoint (OpenAI-compatible)."""
 
-from pydantic import BaseModel, Field
-from typing import Optional
 from enum import Enum
+
+from pydantic import BaseModel, Field
 
 
 class AudioFormat(str, Enum):
     """Supported audio output formats."""
+
     WAV = "wav"
     MP3 = "mp3"
 
 
 class TTSRequest(BaseModel):
     """Request schema for text-to-speech synthesis (OpenAI-compatible)."""
+
     model: str = Field(
         ...,
         description="The TTS model to use (e.g. 'kokoro')",
@@ -44,6 +46,7 @@ class TTSRequest(BaseModel):
 
 class TTSResponse(BaseModel):
     """Response metadata for TTS synthesis (returned in headers alongside audio stream)."""
+
     message: str = Field(..., description="Status message")
     voice: str = Field(..., description="Voice used for synthesis")
     speed: float = Field(..., description="Speed used for synthesis")

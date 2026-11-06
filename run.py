@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import uvicorn
+
 from app import create_app
 
 # Create the FastAPI app

@@ -5,10 +5,10 @@ Reads and writes model data from app/data/models.json.
 
 import json
 from pathlib import Path
+
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.models import ModelInfo, ModelCreate, ModelListResponse
-
+from app.schemas.models import ModelCreate, ModelInfo, ModelListResponse
 
 router = APIRouter(prefix="/v1/models", tags=["Models"])
 

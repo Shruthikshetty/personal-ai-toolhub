@@ -1,4 +1,4 @@
-# Custom AI API
+# Personal Ai toolHub
 
 A local backend for running AI models, designed to be **OpenAI API-compatible**.
 
@@ -13,6 +13,7 @@ A local backend for running AI models, designed to be **OpenAI API-compatible**.
 ### Installation
 
 1. Create and activate a virtual environment:
+
    ```bash
    python -m venv venv
    # Windows
@@ -22,6 +23,7 @@ A local backend for running AI models, designed to be **OpenAI API-compatible**.
    ```
 
 2. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -31,13 +33,34 @@ A local backend for running AI models, designed to be **OpenAI API-compatible**.
    python run.py
    ```
 
+## Development & Formatting
+
+Make sure your virtual environment is activated before running development tools:
+
+### Code Formatting & Linting (Ruff)
+
+- **Format all files:**
+
+  ```bash
+  ruff format .
+  # Or via python if ruff is not on your PATH:
+  python -m ruff format .
+  ```
+
+- **Lint and auto-fix issues (including import sorting):**
+  ```bash
+  ruff check --fix .
+  # Or:
+  python -m ruff check --fix .
+  ```
+
 ## Documentation & Access
 
-| | URL |
-|---|---|
-| **Base URL** | http://localhost:8080 |
-| **Swagger UI** | http://localhost:8080/docs |
-| **ReDoc** | http://localhost:8080/redoc |
+|                  | URL                                |
+| ---------------- | ---------------------------------- |
+| **Base URL**     | http://localhost:8080              |
+| **Swagger UI**   | http://localhost:8080/docs         |
+| **ReDoc**        | http://localhost:8080/redoc        |
 | **OpenAPI JSON** | http://localhost:8080/openapi.json |
 
 ## API Routes
@@ -46,25 +69,25 @@ All routes follow the [OpenAI API specification](https://platform.openai.com/doc
 
 ### Health
 
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/` | Health check |
+| Method | Route | Description  |
+| ------ | ----- | ------------ |
+| `GET`  | `/`   | Health check |
 
 ### Models
 
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/v1/models` | List all registered models |
-| `GET` | `/v1/models/{model_id}` | Get a specific model by ID |
-| `POST` | `/v1/models` | Register a new model |
-| `DELETE` | `/v1/models/{model_id}` | Remove a model |
+| Method   | Route                   | Description                |
+| -------- | ----------------------- | -------------------------- |
+| `GET`    | `/v1/models`            | List all registered models |
+| `GET`    | `/v1/models/{model_id}` | Get a specific model by ID |
+| `POST`   | `/v1/models`            | Register a new model       |
+| `DELETE` | `/v1/models/{model_id}` | Remove a model             |
 
 ### Audio (TTS)
 
-| Method | Route | Description |
-|---|---|---|
+| Method | Route              | Description                          |
+| ------ | ------------------ | ------------------------------------ |
 | `POST` | `/v1/audio/speech` | Synthesize speech from text (Kokoro) |
-| `GET` | `/v1/audio/voices` | List available voices |
+| `GET`  | `/v1/audio/voices` | List available voices                |
 
 #### Example — Create Speech
 
@@ -85,12 +108,13 @@ Available voices: `af_heart`, `af_bella`, `af_nicole`, `af_sarah`, `af_sky`, `am
 
 ## Dependencies
 
-| Package | Purpose |
-|---|---|
-| `fastapi` | Web framework |
-| `uvicorn` | ASGI server |
-| `pydantic` | Request/response validation |
-| `kokoro` | TTS model (Kokoro pipeline) |
-| `soundfile` | Audio encoding (WAV output) |
-| `numpy` | Audio buffer processing |
-| `espeak-ng` *(system)* | Phonemization backend for Kokoro |
+| Package                | Purpose                                 |
+| ---------------------- | --------------------------------------- |
+| `fastapi`              | Web framework                           |
+| `uvicorn`              | ASGI server                             |
+| `pydantic`             | Request/response validation             |
+| `kokoro`               | TTS model (Kokoro pipeline)             |
+| `soundfile`            | Audio encoding (WAV output)             |
+| `numpy`                | Audio buffer processing                 |
+| `ruff`                 | Code formatter and linter (development) |
+| `espeak-ng` _(system)_ | Phonemization backend for Kokoro        |

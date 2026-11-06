@@ -7,19 +7,19 @@ and registers all API routers.
 
 import logging
 import time
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env before importing resources
 load_dotenv()
 
 from fastapi import FastAPI, Request
-from fastapi.middleware import Middleware
-from fastapi.middleware.cors import CORSMiddleware
 
-from app.resources.models import router as models_router
-from app.resources.tts import router as tts_router
+from app.mcp.hello import mcp as hello_mcp
 from app.resources.images import router as images_router
+from app.resources.models import router as models_router
 from app.resources.search import router as search_router
+from app.resources.tts import router as tts_router
 
 # Configure logging: keep normal operation quiet, only surface warnings/errors
 logging.basicConfig(level=logging.WARNING)
@@ -58,7 +58,9 @@ def create_app() -> FastAPI:
         try:
             response = await call_next(request)
         except Exception:
-            logger.exception(f"Unhandled exception while handling {request.method} {request.url.path}")
+            logger.exception(
+                f"Unhandled exception while handling {request.method} {request.url.path}"
+            )
             raise
 
         # Log only when status indicates error (4xx/5xx)
@@ -86,6 +88,9 @@ def create_app() -> FastAPI:
     app.include_router(tts_router)
     app.include_router(images_router)
     app.include_router(search_router)
+
+    # register all the mcp .
+    app.mount("/mcp/hello", hello_mcp.http_app(transport="sse"))
 
     # heath cheque endpoint
     @app.get("/", tags=["Health"])
