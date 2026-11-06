@@ -46,16 +46,25 @@ The project separates core business logic from consumer interfaces:
 custom-ai-api/
 ├── core/                         # 🧠 Core Services (Pure Python, framework-agnostic)
 │   ├── __init__.py
-│   └── hello.py                  # Core reference implementation (sayHello)
+│   ├── hello.py                  # Core reference implementation (say_hello)
+│   ├── comfyui.py                # ComfyUI HTTP client (submit, poll, view)
+│   └── workflow.py               # ComfyUI workflow loader & parameter injector
 │
 ├── app/                          # 🌐 Web & API Application
 │   ├── __init__.py               # FastAPI factory, router mounting & MCP SSE mounts
 │   ├── cli.py                    # Typer CLI commands implementation
 │   ├── mcp/                      # FastMCP server modules
+│   │   ├── __init__.py
 │   │   └── hello.py              # HelloService MCP tool
 │   ├── resources/                # OpenAI-compatible API routes (/v1/audio, /v1/images, etc.)
+│   │   └── __init__.py
 │   ├── schemas/                  # Pydantic validation schemas
+│   │   └── __init__.py
 │   └── data/                     # ComfyUI workflows and model registry
+│
+├── plans/                        # 📐 Architecture & Roadmap specifications
+│   ├── mcp_cli_skills_architecture.md
+│   └── model_management_and_download.md
 │
 ├── .env.example                  # Environment variable reference
 ├── .env                          # Local environment settings (git-ignored)
@@ -281,3 +290,13 @@ Make sure your virtual environment is activated before running development tools
 | `kokoro` | TTS synthesis pipeline |
 | `soundfile` / `numpy` | Audio processing |
 | `ruff` | Linter and formatter (development) |
+
+---
+
+## 7. Architecture Plans & Specs
+
+Detailed design blueprints and implementation roadmaps are stored in the `plans/` directory:
+
+- [MCP, CLI & Agent Skills Architecture](plans/mcp_cli_skills_architecture.md) — Comprehensive guide on the 4-layer design pattern, how core services bridge to FastMCP, Typer, REST, and Antigravity skills.
+- [Model Management & Download Lifecycle](plans/model_management_and_download.md) — Architecture plan for registering, downloading, and tracking local AI models (Kokoro, ComfyUI checkpoints, GGUFs) with background job status.
+

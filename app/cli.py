@@ -4,7 +4,7 @@ CLI entry point for ToolHub (Personal AI Toolkit).
 
 import typer
 
-from core.hello import sayHello
+from core.hello import say_hello
 
 app = typer.Typer(
     name="toolhub",
@@ -17,7 +17,7 @@ app = typer.Typer(
 @app.command()
 def hello(name: str = typer.Argument("world", help="Name of the person to greet")):
     """Say hello using the core greeting logic."""
-    typer.echo(sayHello(name))
+    typer.echo(say_hello(name))
 
 
 @app.command()
