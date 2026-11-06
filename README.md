@@ -99,26 +99,20 @@ custom-ai-api/
    source venv/bin/activate
    ```
 
-2. **Install dependencies:**
+2. **Install project and dependencies (editable mode):**
 
    ```bash
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
-3. **Install the CLI locally (editable mode):**
-
-   ```bash
-   python setup.py develop --no-deps
-   ```
-
-4. **Configure environment:**
+3. **Configure environment:**
 
    Copy `.env.example` to `.env` and adjust settings as needed:
    ```bash
    cp .env.example .env
    ```
 
-5. **Run the server:**
+4. **Run the server:**
 
    ```bash
    python run.py
@@ -160,8 +154,15 @@ To visually inspect schemas, argument types, and test MCP tools live in the brow
 fastmcp dev inspector app/mcp/hello.py:mcp
 ```
 
-#### B. Desktop Agents via Local Stdio
-Add to your Claude Desktop / Cursor / Antigravity MCP settings:
+#### B. Direct Terminal Stdio Execution
+You can test the MCP server directly via stdio in your terminal:
+
+```bash
+python -m app.mcp.hello
+```
+
+#### C. Desktop Agents Configuration (Claude / Cursor / Antigravity)
+Add to your Claude Desktop / Cursor / Antigravity MCP configuration settings:
 
 ```json
 {
@@ -174,7 +175,7 @@ Add to your Claude Desktop / Cursor / Antigravity MCP settings:
 }
 ```
 
-#### C. Network Streaming (SSE)
+#### D. Network Streaming (SSE)
 Mounted into the main FastAPI server at:
 - **SSE Stream:** `http://localhost:8080/mcp/hello/sse`
 

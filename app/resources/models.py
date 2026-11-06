@@ -20,7 +20,7 @@ def _read_models() -> list[dict]:
     """Read all models from the JSON data file."""
     if not DATA_FILE.exists():
         return []
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
+    with open(DATA_FILE, encoding="utf-8") as f:
         return json.load(f)
 
 

@@ -1,13 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
-setup(
-    name="toolhub",
-    version="0.1.0",
-    packages=find_packages(),
-    entry_points={
-        "console_scripts": [
-            "toolhub=app.cli:app",
-        ],
-    },
-)
-
+# Shim for setuptools < 64 (PEP 660) compatibility.
+# All metadata and configuration is read from pyproject.toml.
+setup()

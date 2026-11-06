@@ -24,7 +24,7 @@ NODE_ID_KSAMPLER = 6         # KSampler (seed)
 
 def load_workflow(workflow_path: Path) -> dict:
     """Load a ComfyUI workflow JSON file from disk."""
-    with open(workflow_path, "r", encoding="utf-8") as f:
+    with open(workflow_path, encoding="utf-8") as f:
         return json.load(f)
 
 
