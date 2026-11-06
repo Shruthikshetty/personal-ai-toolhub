@@ -1,8 +1,76 @@
-# Personal Ai toolHub
+# Personal AI ToolHub
 
-A local backend for running AI models, designed to be **OpenAI API-compatible**.
+A modular personal AI toolkit and personal tools aggregator providing unified access to AI models, workflows, and utilities across **REST API**, **CLI**, and **Model Context Protocol (MCP)** interfaces.
 
-## Getting Started
+---
+
+## 1. Architecture: "One Core, Multiple Interfaces"
+
+The project separates core business logic from consumer interfaces:
+
+```
+                      ┌──────────────────────────────────────────────┐
+                      │              External AI Agents              │
+                      │         (Antigravity, Cursor, Claude)        │
+                      └──────────────┬───────────────────────────────┘
+                                     │
+           ┌─────────────────────────┼─────────────────────────┐
+           │ Stdio                   │ Network (SSE)           │ Terminal
+           ▼                         ▼                         ▼
+   ┌───────────────┐         ┌───────────────┐         ┌───────────────┐
+   │ Stdio MCP     │         │   FastAPI     │         │  Typer CLI    │
+   │ python -m ... │         │ /mcp/hello/sse│         │  toolhub ...  │
+   └───────┬───────┘         └───────┬───────┘         └───────┬───────┘
+           │                         │                         │
+           └─────────────────────────┼─────────────────────────┘
+                                     │ Calls internally
+                                     ▼
+                      ┌───────────────────────────────┐
+                      │          Core Logic           │
+                      │            (core/)            │
+                      │  - Pure, framework-agnostic   │
+                      │  - TTS, ComfyUI, Search, etc. │
+                      └───────────────────────────────┘
+```
+
+- **`core/`**: Pure Python business logic with zero framework dependencies (no FastAPI, no Typer, no MCP).
+- **`app/resources/`**: OpenAI-compatible REST API endpoints.
+- **`app/cli.py`**: Command-line interface powered by Typer (`toolhub <command>`).
+- **`app/mcp/`**: Model Context Protocol servers powered by FastMCP (stdio & SSE streaming).
+
+---
+
+## 2. Directory Layout
+
+```text
+custom-ai-api/
+├── core/                         # 🧠 Core Services (Pure Python, framework-agnostic)
+│   ├── __init__.py
+│   └── hello.py                  # Core reference implementation (sayHello)
+│
+├── app/                          # 🌐 Web & API Application
+│   ├── __init__.py               # FastAPI factory, router mounting & MCP SSE mounts
+│   ├── cli.py                    # Typer CLI commands implementation
+│   ├── mcp/                      # FastMCP server modules
+│   │   └── hello.py              # HelloService MCP tool
+│   ├── resources/                # OpenAI-compatible API routes (/v1/audio, /v1/images, etc.)
+│   ├── schemas/                  # Pydantic validation schemas
+│   └── data/                     # ComfyUI workflows and model registry
+│
+├── .env.example                  # Environment variable reference
+├── .env                          # Local environment settings (git-ignored)
+├── .gitignore
+├── toolhub.bat                   # Direct Windows CLI launcher
+├── setup.py                      # Package metadata and `toolhub` console script registration
+├── requirements.txt              # Project dependencies
+├── run.py                        # Entry point for the FastAPI server
+├── start.bat                     # Windows startup script
+└── start.sh                      # Linux production script
+```
+
+---
+
+## 3. Getting Started
 
 ### Prerequisites
 
@@ -12,7 +80,7 @@ A local backend for running AI models, designed to be **OpenAI API-compatible**.
 
 ### Installation
 
-1. Create and activate a virtual environment:
+1. **Create and activate a virtual environment:**
 
    ```bash
    python -m venv venv
@@ -22,74 +90,121 @@ A local backend for running AI models, designed to be **OpenAI API-compatible**.
    source venv/bin/activate
    ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the server:
+3. **Install the CLI locally (editable mode):**
+
+   ```bash
+   python setup.py develop --no-deps
+   ```
+
+4. **Configure environment:**
+
+   Copy `.env.example` to `.env` and adjust settings as needed:
+   ```bash
+   cp .env.example .env
+   ```
+
+5. **Run the server:**
+
    ```bash
    python run.py
    ```
 
-## Development & Formatting
+---
 
-Make sure your virtual environment is activated before running development tools:
+## 4. Interfaces & Usage
 
-### Code Formatting & Linting (Ruff)
+### Interface 1: Command Line Interface (`toolhub`)
 
-- **Format all files:**
+The CLI is built with **Typer**, providing automatic argument validation and help documentation.
 
+- **Display help:**
   ```bash
-  ruff format .
-  # Or via python if ruff is not on your PATH:
-  python -m ruff format .
+  toolhub --help
+  ```
+- **Execute greeting:**
+  ```bash
+  toolhub hello Alice
+  ```
+- **Check version:**
+  ```bash
+  toolhub version
   ```
 
-- **Lint and auto-fix issues (including import sorting):**
-  ```bash
-  ruff check --fix .
-  # Or:
-  python -m ruff check --fix .
-  ```
+*(You can also invoke directly via `python -m app.cli <command>` or `.\toolhub.bat <command>` without activating the virtual environment).*
 
-## Documentation & Access
+---
 
-|                  | URL                                |
-| ---------------- | ---------------------------------- |
-| **Base URL**     | http://localhost:8080              |
-| **Swagger UI**   | http://localhost:8080/docs         |
-| **ReDoc**        | http://localhost:8080/redoc        |
-| **OpenAPI JSON** | http://localhost:8080/openapi.json |
+### Interface 2: Model Context Protocol (MCP)
 
-## API Routes
+Provides tools for AI agents (Cursor, Claude Desktop, Antigravity).
 
-All routes follow the [OpenAI API specification](https://platform.openai.com/docs/api-reference).
+#### A. Interactive MCP Inspector (Schema & Testing UI)
+To visually inspect schemas, argument types, and test MCP tools live in the browser:
 
-### Health
+```bash
+fastmcp dev inspector app/mcp/hello.py:mcp
+```
 
-| Method | Route | Description  |
-| ------ | ----- | ------------ |
-| `GET`  | `/`   | Health check |
+#### B. Desktop Agents via Local Stdio
+Add to your Claude Desktop / Cursor / Antigravity MCP settings:
 
-### Models
+```json
+{
+  "mcpServers": {
+    "toolhub-hello": {
+      "command": "python",
+      "args": ["-m", "app.mcp.hello"]
+    }
+  }
+}
+```
 
-| Method   | Route                   | Description                |
-| -------- | ----------------------- | -------------------------- |
-| `GET`    | `/v1/models`            | List all registered models |
-| `GET`    | `/v1/models/{model_id}` | Get a specific model by ID |
-| `POST`   | `/v1/models`            | Register a new model       |
-| `DELETE` | `/v1/models/{model_id}` | Remove a model             |
+#### C. Network Streaming (SSE)
+Mounted into the main FastAPI server at:
+- **SSE Stream:** `http://localhost:8080/mcp/hello/sse`
 
-### Audio (TTS)
+---
 
-| Method | Route              | Description                          |
-| ------ | ------------------ | ------------------------------------ |
-| `POST` | `/v1/audio/speech` | Synthesize speech from text (Kokoro) |
-| `GET`  | `/v1/audio/voices` | List available voices                |
+### Interface 3: REST API (FastAPI)
 
-#### Example — Create Speech
+All routes follow the [OpenAI API specification](https://platform.openai.com/docs/api-reference) where applicable.
+
+| Documentation | URL |
+| :--- | :--- |
+| **Base URL** | `http://localhost:8080` |
+| **Swagger UI** | `http://localhost:8080/docs` |
+| **ReDoc** | `http://localhost:8080/redoc` |
+| **OpenAPI JSON** | `http://localhost:8080/openapi.json` |
+
+#### Health
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/` | Health check endpoint |
+
+#### Models Registry
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/v1/models` | List all registered local models |
+| `GET` | `/v1/models/{model_id}` | Retrieve details for a specific model |
+| `POST` | `/v1/models` | Register a new model |
+| `DELETE` | `/v1/models/{model_id}` | Remove a model from registry |
+
+#### Audio (Kokoro TTS)
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `POST` | `/v1/audio/speech` | Synthesize speech from text (Kokoro model) |
+| `GET` | `/v1/audio/voices` | List all available voices |
+
+**Example — Create Speech:**
 
 ```bash
 curl http://localhost:8080/v1/audio/speech \
@@ -104,17 +219,65 @@ curl http://localhost:8080/v1/audio/speech \
   --output speech.wav
 ```
 
-Available voices: `af_heart`, `af_bella`, `af_nicole`, `af_sarah`, `af_sky`, `am_adam`, `am_michael`, `bf_emma`, `bf_isabella`, `bm_george`, `bm_lewis`
+**Supported voices:** `af_heart`, `af_bella`, `af_nicole`, `af_sarah`, `af_sky`, `am_adam`, `am_michael`, `bf_emma`, `bf_isabella`, `bm_george`, `bm_lewis`
 
-## Dependencies
+#### Images (ComfyUI Wrapper)
 
-| Package                | Purpose                                 |
-| ---------------------- | --------------------------------------- |
-| `fastapi`              | Web framework                           |
-| `uvicorn`              | ASGI server                             |
-| `pydantic`             | Request/response validation             |
-| `kokoro`               | TTS model (Kokoro pipeline)             |
-| `soundfile`            | Audio encoding (WAV output)             |
-| `numpy`                | Audio buffer processing                 |
-| `ruff`                 | Code formatter and linter (development) |
-| `espeak-ng` _(system)_ | Phonemization backend for Kokoro        |
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `POST` | `/v1/images/generations` | OpenAI-compatible text-to-image proxy to ComfyUI |
+
+**Example — Generate Image:**
+
+```bash
+curl http://localhost:8080/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A futuristic city in cyberpunk neon style",
+    "size": "1024x1024",
+    "response_format": "url"
+  }'
+```
+
+#### Web Search
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `POST` | `/v1/search` | Web search powered by DuckDuckGo |
+
+#### MCP Streaming Endpoints
+
+| Protocol | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/mcp/hello/sse` | FastMCP Server-Sent Events stream for AI agents |
+
+---
+
+## 5. Development & Formatting
+
+Make sure your virtual environment is activated before running development tools:
+
+- **Format code:**
+  ```bash
+  ruff format .
+  ```
+- **Lint and auto-fix:**
+  ```bash
+  ruff check --fix .
+  ```
+
+---
+
+## 6. Key Dependencies
+
+| Package | Purpose |
+| :--- | :--- |
+| `fastapi` | REST web framework |
+| `uvicorn` | ASGI web server |
+| `fastmcp` (4.x) | Model Context Protocol (MCP) server & inspector |
+| `typer` | Modern CLI development framework |
+| `pydantic` / `pydantic-settings` | Data validation and settings management |
+| `python-dotenv` | Automatic `.env` environment file loader |
+| `kokoro` | TTS synthesis pipeline |
+| `soundfile` / `numpy` | Audio processing |
+| `ruff` | Linter and formatter (development) |

@@ -10,7 +10,6 @@ import time
 
 from dotenv import load_dotenv
 
-
 # Configure logging: keep normal operation quiet, only surface warnings/errors
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -89,7 +88,7 @@ def create_app():
     app.include_router(images_router)
     app.include_router(search_router)
 
-    # Register all MCP servers
+    # Register all MCP servers for AI agents
     app.mount("/mcp/hello", hello_mcp.http_app(transport="sse"))
 
     # Health check endpoint
