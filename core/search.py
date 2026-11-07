@@ -32,13 +32,15 @@ class SearchResult:
     title: str
     url: str
     snippet: str
+    content: str | None = None
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, str | None]:
         """Convert result item to dictionary."""
         return {
             "title": self.title,
             "url": self.url,
             "snippet": self.snippet,
+            "content": self.content,
         }
 
 
@@ -55,6 +57,7 @@ class BaseSearchEngine(ABC):
         self,
         query: str,
         max_results: int = 5,
+        fetch_content: bool = True,
     ) -> list[SearchResult]:
         """
         Execute search query asynchronously.
@@ -62,6 +65,7 @@ class BaseSearchEngine(ABC):
         Args:
             query: The search term or keywords.
             max_results: The maximum number of results to return.
+            fetch_content: Whether to concurrently fetch readable webpage text.
 
         Returns:
             A list of SearchResult objects.
@@ -86,7 +90,6 @@ def get_search_engine(provider: str = "duckduckgo") -> BaseSearchEngine:
         An instance of BaseSearchEngine.
     """
     normalized = provider.strip().lower()
-    # @TODO currently only supports duck duck go
     if normalized in ("duckduckgo", "ddg"):
         from core.duckduckgo import DuckDuckGoSearch
 
@@ -98,6 +101,7 @@ def get_search_engine(provider: str = "duckduckgo") -> BaseSearchEngine:
 async def search(
     query: str,
     max_results: int = 5,
+    fetch_content: bool = True,
     provider: str = "duckduckgo",
 ) -> list[SearchResult]:
     """
@@ -106,10 +110,13 @@ async def search(
     Args:
         query: The search query string.
         max_results: Maximum number of results to return.
+        fetch_content: Whether to fetch readable page body content.
         provider: Search provider name (defaults to 'duckduckgo').
 
     Returns:
         List of SearchResult objects.
     """
     engine = get_search_engine(provider)
-    return await engine.search(query, max_results=max_results)
+    return await engine.search(
+        query, max_results=max_results, fetch_content=fetch_content
+    )

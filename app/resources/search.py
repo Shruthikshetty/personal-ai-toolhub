@@ -26,17 +26,20 @@ _search_engine = DuckDuckGoSearch()
     summary="Perform a web search",
     description=(
         "Searches the web for the given query using DuckDuckGo directly and returns "
-        "a list of relevant results including titles, URLs, and snippets."
+        "a list of relevant results including titles, URLs, snippets, and optionally "
+        "extracted readable page content."
     ),
 )
 async def web_search(request: SearchRequest):
     """
-    Perform a web search by querying DuckDuckGo HTML directly.
+    Perform a web search by querying DuckDuckGo HTML directly,
+    optionally enriching results with readable page text.
     """
     try:
         results = await _search_engine.search(
             query=request.query,
             max_results=request.max_results,
+            fetch_content=request.fetch_content,
         )
         return SearchResponse(
             results=[
@@ -44,6 +47,7 @@ async def web_search(request: SearchRequest):
                     title=r.title,
                     url=r.url,
                     snippet=r.snippet,
+                    content=r.content,
                 )
                 for r in results
             ],
@@ -89,6 +93,11 @@ async def get_search_tool_schema():
                         "type": "integer",
                         "description": "Optional: maximum number of results to return (default is 5).",
                         "default": 5,
+                    },
+                    "fetch_content": {
+                        "type": "boolean",
+                        "description": "Optional: whether to fetch readable page text from top results (default is true).",
+                        "default": True,
                     },
                 },
                 "required": ["query"],
