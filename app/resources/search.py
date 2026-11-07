@@ -2,15 +2,22 @@
 
 Provides an endpoint to perform web searches using DuckDuckGo.
 Designed to be used as a 'tool' by AI models.
+
+Delegates core search logic to core/duckduckgo.py and core/search.py.
 """
 
-import httpx
-from bs4 import BeautifulSoup
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.search import SearchRequest, SearchResponse, SearchResult
+from core.duckduckgo import DuckDuckGoSearch
+from core.search import (
+    SearchError,
+    SearchNetworkError,
+    SearchServiceError,
+)
 
 router = APIRouter(prefix="/v1/tools", tags=["Tools"])
+_search_engine = DuckDuckGoSearch()
 
 
 @router.post(
@@ -27,50 +34,35 @@ async def web_search(request: SearchRequest):
     Perform a web search by querying DuckDuckGo HTML directly.
     """
     try:
-        url = "https://html.duckduckgo.com/html/"
-        data = {"q": request.query}
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-
-        results = []
-        async with httpx.AsyncClient() as client:
-            res = await client.post(url, data=data, headers=headers, timeout=10.0)
-            if res.status_code != 200:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Search service returned status {res.status_code}",
+        results = await _search_engine.search(
+            query=request.query,
+            max_results=request.max_results,
+        )
+        return SearchResponse(
+            results=[
+                SearchResult(
+                    title=r.title,
+                    url=r.url,
+                    snippet=r.snippet,
                 )
-
-            soup = BeautifulSoup(res.text, "html.parser")
-
-            for el in soup.find_all("div", class_="result"):
-                title_el = el.find("a", class_="result__a")
-                snippet_el = el.find("a", class_="result__snippet")
-
-                if title_el and snippet_el:
-                    results.append(
-                        SearchResult(
-                            title=title_el.text.strip(),
-                            url=title_el.get("href", ""),
-                            snippet=snippet_el.text.strip(),
-                        )
-                    )
-
-                if len(results) >= request.max_results:
-                    break
-
-        return SearchResponse(results=results, query=request.query)
-    except httpx.RequestError as e:
-        # Network-level failure — DuckDuckGo unreachable, DNS failure, timeout, etc.
+                for r in results
+            ],
+            query=request.query,
+        )
+    except SearchNetworkError as e:
         raise HTTPException(
             status_code=503,
             detail=f"Search service unavailable: {e!s}",
         )
-    except HTTPException:
-        raise
-    except Exception as e:
+    except SearchServiceError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Search service error: {e!s}",
+        )
+    except SearchError as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {e!s}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected search failure: {e!s}")
 
 
 # This endpoint provides the JSON schema for the tool,

@@ -48,7 +48,9 @@ custom-ai-api/
 │   ├── __init__.py
 │   ├── hello.py                  # Core reference implementation (say_hello)
 │   ├── comfyui.py                # ComfyUI HTTP client (submit, poll, view)
-│   └── workflow.py               # ComfyUI workflow loader & parameter injector
+│   ├── workflow.py               # ComfyUI workflow loader & parameter injector
+│   ├── search.py                 # Base search interfaces, data models & exceptions
+│   └── duckduckgo.py             # DuckDuckGo search provider implementation
 │
 ├── app/                          # 🌐 Web & API Application
 │   ├── __init__.py               # FastAPI factory, router mounting & MCP SSE mounts
