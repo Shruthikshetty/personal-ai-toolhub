@@ -25,6 +25,7 @@ def create_app():
     from fastapi import FastAPI, Request
 
     from app.mcp.hello import mcp as hello_mcp
+    from app.mcp.search import mcp as search_mcp
     from app.resources.images import router as images_router
     from app.resources.models import router as models_router
     from app.resources.search import router as search_router
@@ -90,6 +91,7 @@ def create_app():
 
     # Register all MCP servers for AI agents (Streamable HTTP & SSE)
     app.mount("/mcp/hello", hello_mcp.http_app(path="/", transport="http"))
+    app.mount("/mcp/search", search_mcp.http_app(path="/", transport="http"))
 
     # Health check endpoint
     @app.get("/", tags=["Health"])

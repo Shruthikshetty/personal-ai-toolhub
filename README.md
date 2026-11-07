@@ -153,6 +153,10 @@ Provides tools for AI agents (Cursor, Claude Desktop, Antigravity).
 To visually inspect schemas, argument types, and test MCP tools live in the browser:
 
 ```bash
+# Inspect Search MCP
+fastmcp dev inspector app/mcp/search.py:mcp
+
+# Inspect Hello MCP
 fastmcp dev inspector app/mcp/hello.py:mcp
 ```
 
