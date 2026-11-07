@@ -7,6 +7,7 @@ and registers all API routers.
 
 import logging
 import time
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
@@ -31,6 +32,15 @@ def create_app():
     from app.resources.search import router as search_router
     from app.resources.tts import router as tts_router
 
+    hello_app = hello_mcp.http_app(path="/", transport="http")
+    search_app = search_mcp.http_app(path="/", transport="http")
+
+    # manage the start up and clean up of all the mcps
+    @asynccontextmanager
+    async def lifespan(app):
+        async with hello_app.lifespan(app), search_app.lifespan(app):
+            yield
+
     app = FastAPI(
         title="Custom AI API",
         description=(
@@ -44,6 +54,7 @@ def create_app():
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        lifespan=lifespan,
     )
 
     # Add logging middleware
@@ -90,8 +101,8 @@ def create_app():
     app.include_router(search_router)
 
     # Register all MCP servers for AI agents (Streamable HTTP & SSE)
-    app.mount("/mcp/hello", hello_mcp.http_app(path="/", transport="http"))
-    app.mount("/mcp/search", search_mcp.http_app(path="/", transport="http"))
+    app.mount("/mcp/hello", hello_app)
+    app.mount("/mcp/search", search_app)
 
     # Health check endpoint
     @app.get("/", tags=["Health"])
