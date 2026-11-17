@@ -6,8 +6,10 @@ and registers all API routers.
 """
 
 import logging
+import os
 import time
 from contextlib import asynccontextmanager
+from importlib.util import find_spec
 
 from dotenv import load_dotenv
 
@@ -22,6 +24,10 @@ def create_app():
     """Create and configure the FastAPI application."""
     # Load .env and all heavy imports only when the server is actually starting
     load_dotenv()
+    enable_tts = os.getenv("ENABLE_TTS", "false").strip().lower() in {
+        "1",
+        "true",
+    }
 
     from fastapi import FastAPI, Request
 
@@ -30,10 +36,35 @@ def create_app():
     from app.resources.images import router as images_router
     from app.resources.models import router as models_router
     from app.resources.search import router as search_router
-    from app.resources.tts import router as tts_router
 
+    if enable_tts:
+        missing_tts_dependencies = [
+            dependency
+            for dependency in ("kokoro", "soundfile", "numpy", "torch")
+            if find_spec(dependency) is None
+        ]
+        if missing_tts_dependencies:
+            missing = ", ".join(missing_tts_dependencies)
+            raise RuntimeError(
+                f"ENABLE_TTS is enabled, but TTS dependencies are missing: {missing}. "
+                'Install them with: pip install -e ".[tts]"'
+            )
+        from app.resources.tts import router as tts_router
+
+    # mcp path attached
     hello_app = hello_mcp.http_app(path="/", transport="http")
     search_app = search_mcp.http_app(path="/", transport="http")
+
+    description = (
+        "A local backend for running AI models with wrapper services.\n\n"
+        "## Features\n"
+        "- **Models Registry** — manage and query available local models\n"
+    )
+    if enable_tts:
+        description += (
+            "- **Text-to-Speech** — Kokoro TTS synthesis with multiple voices\n"
+        )
+    description += "\nMore model types (LLM, STT, etc.) coming soon."
 
     # manage the start up and clean up of all the mcps
     @asynccontextmanager
@@ -43,13 +74,7 @@ def create_app():
 
     app = FastAPI(
         title="Custom AI API",
-        description=(
-            "A local backend for running AI models with wrapper services.\n\n"
-            "## Features\n"
-            "- **Models Registry** — manage and query available local models\n"
-            "- **Text-to-Speech** — Kokoro TTS synthesis with multiple voices\n\n"
-            "More model types (LLM, STT, etc.) coming soon."
-        ),
+        description=description,
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
@@ -96,7 +121,10 @@ def create_app():
 
     # Register routers
     app.include_router(models_router)
-    app.include_router(tts_router)
+    # option tts route
+    if enable_tts:
+        app.include_router(tts_router)
+    # rest of the routes
     app.include_router(images_router)
     app.include_router(search_router)
 

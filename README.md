@@ -107,12 +107,22 @@ custom-ai-api/
    pip install -e .
    ```
 
+   TTS is optional. To install its Kokoro dependencies:
+
+   ```bash
+   pip install -e ".[tts]"
+   ```
+
 3. **Configure environment:**
 
    Copy `.env.example` to `.env` and adjust settings as needed:
    ```bash
    cp .env.example .env
    ```
+
+   TTS routes are disabled by default. Set `ENABLE_TTS=true` in `.env` to enable
+   them after installing the `tts` extra. Small devices that don't need TTS can
+   install the base project only.
 
 4. **Run the server:**
 
